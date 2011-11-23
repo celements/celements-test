@@ -9,7 +9,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.celements</groupId>
 	<artifactId>celements-shared-tests</artifactId>
-	<version>1.3</version>
+	<version>1.4-SNAPSHOT</version>
 	<description>Celements Shared Tests</description>
 	<dependencies>
 		<!-- Add here all your dependencies -->
