@@ -29,12 +29,13 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
 import org.junit.After;
 import org.junit.Before;
+import org.xwiki.component.manager.ComponentLookupException;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.context.Execution;
+import org.xwiki.context.ExecutionContext;
 import org.xwiki.test.AbstractComponentTestCase;
 
 import com.xpn.xwiki.XWikiContext;
-import com.xpn.xwiki.util.XWikiStubContextProvider;
 import com.xpn.xwiki.web.Utils;
 import com.xpn.xwiki.web.XWikiMessageTool;
 
@@ -50,9 +51,6 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
       AbstractBridgedComponentTestCase.class);
 
   private XWikiContext context;
-//  private DocumentAccessBridge mockDocumentAccessBridge;
-//  private DocumentNameSerializer mockDocumentNameSerializer;
-//  private DocumentNameFactory mockDocumentNameFactory;
 
   @Before
   public void setUp() throws Exception {
@@ -61,32 +59,23 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
     // Statically store the component manager in {@link Utils} to be able to access it without
     // the context.
     Utils.setComponentManager(getComponentManager());
-    
-    this.context = new XWikiContext();
 
-    this.context.setDatabase("xwikidb");
-    this.context.setMainXWiki("xwikiWiki");
-
-    // We need to initialize the Component Manager so that the components can be looked up
-    getContext().put(ComponentManager.class.getName(), getComponentManager());
-
-
-    // Bridge with old XWiki Context, required for old code.
-    Execution execution = getComponentManager().lookup(Execution.class);
-    execution.getContext().setProperty("xwikicontext", this.context);
-    getComponentManager().lookup(XWikiStubContextProvider.class).initialize(this.context);
-//
-//    // Set a simple application context, as some components fail to start without one.
-//    Container c = getComponentManager().lookup(Container.class);
-//    c.setApplicationContext(new TestApplicationContext());
-//
-//    CoreConfiguration mockCoreConfiguration = createMock(CoreConfiguration.class);
-//    expect(mockCoreConfiguration.getDefaultDocumentSyntax()).andReturn("xwiki/1.0").anyTimes();
-//    DefaultComponentDescriptor<CoreConfiguration> descriptor = new DefaultComponentDescriptor<CoreConfiguration>();
-//    descriptor.setRole(CoreConfiguration.class);
-//    replay(mockCoreConfiguration);
-//    getComponentManager().registerComponent(descriptor, mockCoreConfiguration);
+    this.context = (XWikiContext) getExecutionContext().getProperty("xwikicontext");
+    if (this.context == null) {
+      this.context = new XWikiContext();
+  
+      this.context.setDatabase("xwikidb");
+      this.context.setMainXWiki("xwikiWiki");
+      getExecutionContext().setProperty("xwikicontext", this.context);
+  
+      // We need to initialize the Component Manager so that the components can be looked up
+      getContext().put(ComponentManager.class.getName(), getComponentManager());
+    }
   }
+
+private ExecutionContext getExecutionContext() throws ComponentLookupException, Exception {
+  return ((Execution)getComponentManager().getInstance(Execution.class)).getContext();
+}
 
   @After
   public void tearDown() throws Exception {
@@ -120,36 +109,6 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
       }
     }
     return this.context;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  protected void registerComponents() throws Exception {
-//      super.registerComponents();
-//
-//      // Document Access Bridge Mock
-//      mockDocumentAccessBridge = createMock(DocumentAccessBridge.class);
-//      DefaultComponentDescriptor<DocumentAccessBridge> descriptorDAB =
-//          new DefaultComponentDescriptor<DocumentAccessBridge>();
-//      descriptorDAB.setRole(DocumentAccessBridge.class);
-//      getComponentManager().registerComponent(descriptorDAB, mockDocumentAccessBridge);
-//
-//      // Document name serializer.
-//      mockDocumentNameSerializer = createMock(DocumentNameSerializer.class);
-//      DefaultComponentDescriptor<DocumentNameSerializer> descriptorDNS =
-//          new DefaultComponentDescriptor<DocumentNameSerializer>();
-//      descriptorDNS.setRole(DocumentNameSerializer.class);
-//      getComponentManager().registerComponent(descriptorDNS, mockDocumentNameSerializer);
-//
-//      // Document name factory.
-//      mockDocumentNameFactory = createMock(DocumentNameFactory.class);
-//      DefaultComponentDescriptor<DocumentNameFactory> descriptorDNF =
-//          new DefaultComponentDescriptor<DocumentNameFactory>();
-//      descriptorDNF.setRole(DocumentNameFactory.class);
-//      getComponentManager().registerComponent(descriptorDNF, mockDocumentNameFactory);
-//
-//      getComponentManager().lookup(DocumentNameFactory.class, "default");
   }
 
   public class TestMessageTool extends XWikiMessageTool {

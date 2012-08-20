@@ -3,25 +3,20 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 		<groupId>com.celements</groupId>
-		<artifactId>celements</artifactId>
-		<version>1.11</version>
+		<artifactId>base-pom</artifactId>
+		<version>3.1-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.celements</groupId>
 	<artifactId>celements-shared-tests</artifactId>
-	<version>1.4-SNAPSHOT</version>
+	<version>3.0-SNAPSHOT</version>
 	<description>Celements Shared Tests</description>
 	<dependencies>
 		<!-- Add here all your dependencies -->
     <dependency>
       <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-core-shared-tests</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-codec</groupId>
-          <artifactId>commons-codec</artifactId>
-        </exclusion>
-      </exclusions>
+      <artifactId>xwiki-platform-oldcore</artifactId>
+      <scope>provided</scope>
     </dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -35,5 +30,22 @@
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-java</artifactId>
     </dependency>
-	</dependencies>
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.xwiki.commons</groupId>
+      <artifactId>xwiki-commons-test</artifactId>
+      <version>${xwiki.dependency.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-oldcore</artifactId>
+      <version>${xwiki.dependency.version}</version>
+      <type>test-jar</type>
+    </dependency>
+    <!-- For some tests we need to have the Servlet API JAR available -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+  </dependencies>
 </project>
