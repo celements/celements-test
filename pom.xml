@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 		<groupId>com.celements</groupId>
 		<artifactId>base-pom</artifactId>
@@ -9,12 +8,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.celements</groupId>
 	<artifactId>celements-shared-tests</artifactId>
-	<version>1.4-SNAPSHOT</version>
+	<version>1.4</version>
 	<description>Celements Shared Tests</description>
   <scm>
     <connection>scm:git:git@github.com:celements/celements-shared-tests.git</connection>
     <developerConnection>scm:git:git@github.com:celements/celements-shared-tests.git</developerConnection>
     <url>https://github.com/celements/celements-shared-tests</url>
+    <tag>celements-shared-tests-1.4</tag>
   </scm>
 	<dependencies>
 		<!-- Add here all your dependencies -->
