@@ -31,7 +31,7 @@ import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.web.Utils;
 
-public class TestAbstractBridgedComponentTestCase
+public class AbstractBridgedComponentTestCaseTest
     extends AbstractBridgedComponentTestCase {
 
   private XWikiContext context;
