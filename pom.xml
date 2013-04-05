@@ -11,6 +11,11 @@
 	<artifactId>celements-shared-tests</artifactId>
 	<version>1.4-SNAPSHOT</version>
 	<description>Celements Shared Tests</description>
+  <scm>
+    <connection>scm:git:git@github.com:celements/celements-shared-tests.git</connection>
+    <developerConnection>scm:git:git@github.com:celements/celements-shared-tests.git</developerConnection>
+    <url>https://github.com/celements/celements-shared-tests</url>
+  </scm>
 	<dependencies>
 		<!-- Add here all your dependencies -->
     <dependency>
@@ -46,4 +51,20 @@
       <artifactId>servlet-api</artifactId>
     </dependency>
   </dependencies>
+   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <!-- XWiki rule is to put test in *Test classes -->
+          <configuration>
+            <includes>
+              <include>**/*Test.class</include>
+            </includes>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>
