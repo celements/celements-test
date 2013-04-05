@@ -21,20 +21,26 @@ package com.celements.common.test;
 
 import static org.easymock.EasyMock.*;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+
+import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
 import org.junit.After;
 import org.junit.Before;
+import org.xwiki.component.manager.ComponentLookupException;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
-import org.xwiki.test.AbstractComponentTestCase;
+import org.xwiki.environment.Environment;
+import org.xwiki.environment.internal.ServletEnvironment;
+import org.xwiki.test.jmock.AbstractComponentTestCase;
 
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
@@ -54,9 +60,8 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
 
   private XWikiContext context;
   private XWiki wikiMock;
-//  private DocumentAccessBridge mockDocumentAccessBridge;
-//  private DocumentNameSerializer mockDocumentNameSerializer;
-//  private DocumentNameFactory mockDocumentNameFactory;
+
+  private ServletContext servletContextMock;
 
   public XWiki getWikiMock() {
     return wikiMock;
@@ -83,10 +88,18 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
       // We need to initialize the Component Manager so that the components can be looked up
       getContext().put(ComponentManager.class.getName(), getComponentManager());
     }
+    servletContextMock = createMock(ServletContext.class);
+    ServletEnvironment environment = (ServletEnvironment) getComponentManager(
+      ).getInstance(Environment.class);
+    environment.setServletContext(servletContextMock);
+    expect(servletContextMock.getResourceAsStream(eq(
+      "/WEB-INF/cache/infinispan/config.xml"))).andReturn(null).anyTimes();
+    expect(servletContextMock.getAttribute(eq("javax.servlet.context.tempdir"))
+      ).andReturn(new File(System.getProperty("java.io.tmpdir"))).anyTimes();
   }
 
   private ExecutionContext getExecutionContext() throws Exception {
-    return ((Execution)getComponentManager().lookup(Execution.class)).getContext();
+    return ((Execution)getComponentManager().getInstance(Execution.class)).getContext();
   }
 
   @After
@@ -149,12 +162,12 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
   }
 
   protected void replayDefault(Object ... mocks) {
-    replay(wikiMock);
+    replay(wikiMock, servletContextMock);
     replay(mocks);
   }
 
   protected void verifyDefault(Object ... mocks) {
-    verify(wikiMock);
+    verify(wikiMock, servletContextMock);
     verify(mocks);
   }
 

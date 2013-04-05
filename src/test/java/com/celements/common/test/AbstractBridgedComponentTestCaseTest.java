@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.xwiki.cache.CacheManager;
 import org.xwiki.cache.config.CacheConfiguration;
 import org.xwiki.cache.eviction.LRUEvictionConfiguration;
+import org.xwiki.environment.Environment;
 import org.xwiki.model.reference.EntityReferenceSerializer;
 
 import com.xpn.xwiki.XWiki;
@@ -47,7 +48,25 @@ public class AbstractBridgedComponentTestCaseTest
   public void testOnceLoadComponentManager() throws Exception {
     replayAll();
     assertNotNull(getComponentManager());
-    assertNotNull(Utils.getComponent(EntityReferenceSerializer.class, "default"));
+    assertNotNull(Utils.getComponent(EntityReferenceSerializer.TYPE_STRING));
+    verifyAll();
+  }
+
+  @Test
+  public void testServletEnvironment_setup() throws Exception {
+    replayAll();
+    Environment environment = getComponentManager().getInstance(Environment.class);
+    assertNotNull(environment);
+    assertNotNull(environment.getTemporaryDirectory());
+    verifyAll();
+  }
+
+  @Test
+  public void testServletEnvironment_get_infinispan_cache_config() throws Exception {
+    replayAll();
+    Environment environment = getComponentManager().getInstance(Environment.class);
+    assertNotNull(environment);
+    assertNull(environment.getResourceAsStream("/WEB-INF/cache/infinispan/config.xml"));
     verifyAll();
   }
 
