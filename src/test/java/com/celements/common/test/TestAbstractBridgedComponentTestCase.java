@@ -22,6 +22,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.xwiki.cache.CacheManager;
+import org.xwiki.cache.config.CacheConfiguration;
+import org.xwiki.cache.eviction.LRUEvictionConfiguration;
 import org.xwiki.environment.Environment;
 import org.xwiki.model.reference.EntityReferenceSerializer;
 
@@ -64,6 +67,18 @@ public class TestAbstractBridgedComponentTestCase
     Environment environment = getComponentManager().getInstance(Environment.class);
     assertNotNull(environment);
     assertNull(environment.getResourceAsStream("/WEB-INF/cache/infinispan/config.xml"));
+    verifyAll();
+  }
+
+  @Test
+  public void testInitCache() throws Exception {
+    CacheConfiguration configuration = new CacheConfiguration();
+    configuration.setConfigurationId("xwiki.renderingcache");
+    LRUEvictionConfiguration lru = new LRUEvictionConfiguration();
+    lru.setMaxEntries(100);
+    configuration.put(LRUEvictionConfiguration.CONFIGURATIONID, lru);
+    replayAll();
+    assertNotNull(Utils.getComponent(CacheManager.class).createNewCache(configuration));
     verifyAll();
   }
 
