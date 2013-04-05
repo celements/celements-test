@@ -23,9 +23,11 @@ import static org.easymock.EasyMock.*;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 
@@ -60,8 +62,11 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
 
   private XWikiContext context;
   private XWiki wikiMock;
-
   private ServletContext servletContextMock;
+  private Set<Object> defaultMocks = new HashSet<Object>();
+//  private DocumentAccessBridge mockDocumentAccessBridge;
+//  private DocumentNameSerializer mockDocumentNameSerializer;
+//  private DocumentNameFactory mockDocumentNameFactory;
 
   public XWiki getWikiMock() {
     return wikiMock;
@@ -81,14 +86,14 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
   
       this.context.setDatabase("xwikidb");
       this.context.setMainXWiki("xwikiWiki");
-      wikiMock = createMock(XWiki.class);
+      wikiMock = createMockAndAddToDefault(XWiki.class);
       context.setWiki(wikiMock);
       getExecutionContext().setProperty("xwikicontext", this.context);
   
       // We need to initialize the Component Manager so that the components can be looked up
       getContext().put(ComponentManager.class.getName(), getComponentManager());
     }
-    servletContextMock = createMock(ServletContext.class);
+    servletContextMock = createMockAndAddToDefault(ServletContext.class);
     ServletEnvironment environment = (ServletEnvironment) getComponentManager(
       ).getInstance(Environment.class);
     environment.setServletContext(servletContextMock);
@@ -161,13 +166,19 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
 
   }
 
+  public <T> T createMockAndAddToDefault(final Class<T> toMock) {
+    T newMock = createMock(toMock);
+    defaultMocks.add(newMock);
+    return newMock;
+  }
+
   protected void replayDefault(Object ... mocks) {
-    replay(wikiMock, servletContextMock);
+    replay(defaultMocks.toArray());
     replay(mocks);
   }
 
   protected void verifyDefault(Object ... mocks) {
-    verify(wikiMock, servletContextMock);
+    verify(defaultMocks.toArray());
     verify(mocks);
   }
 

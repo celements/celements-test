@@ -18,6 +18,7 @@ package com.celements.common.test;
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
@@ -30,6 +31,7 @@ import org.xwiki.model.reference.EntityReferenceSerializer;
 
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
+import com.xpn.xwiki.render.XWikiRenderingEngine;
 import com.xpn.xwiki.web.Utils;
 
 public class AbstractBridgedComponentTestCaseTest
@@ -45,29 +47,36 @@ public class AbstractBridgedComponentTestCaseTest
   }
 
   @Test
+  public void testDefaultMocks() {
+    assertNotNull(context);
+    assertNotNull(xwiki);
+    assertSame(context.getWiki(), xwiki);
+  }
+
+  @Test
   public void testOnceLoadComponentManager() throws Exception {
-    replayAll();
+    replayDefault();
     assertNotNull(getComponentManager());
     assertNotNull(Utils.getComponent(EntityReferenceSerializer.TYPE_STRING));
-    verifyAll();
+    verifyDefault();
   }
 
   @Test
   public void testServletEnvironment_setup() throws Exception {
-    replayAll();
+    replayDefault();
     Environment environment = getComponentManager().getInstance(Environment.class);
     assertNotNull(environment);
     assertNotNull(environment.getTemporaryDirectory());
-    verifyAll();
+    verifyDefault();
   }
 
   @Test
   public void testServletEnvironment_get_infinispan_cache_config() throws Exception {
-    replayAll();
+    replayDefault();
     Environment environment = getComponentManager().getInstance(Environment.class);
     assertNotNull(environment);
     assertNull(environment.getResourceAsStream("/WEB-INF/cache/infinispan/config.xml"));
-    verifyAll();
+    verifyDefault();
   }
 
   @Test
@@ -77,17 +86,25 @@ public class AbstractBridgedComponentTestCaseTest
     LRUEvictionConfiguration lru = new LRUEvictionConfiguration();
     lru.setMaxEntries(100);
     configuration.put(LRUEvictionConfiguration.CONFIGURATIONID, lru);
-    replayAll();
+    replayDefault();
     assertNotNull(Utils.getComponent(CacheManager.class).createNewCache(configuration));
-    verifyAll();
+    verifyDefault();
   }
 
-
-  private void replayAll(Object ... mocks) {
-    replayDefault(mocks);
+  @Test
+  public void test() {
+    XWikiRenderingEngine renderingEngine = createMockAndAddToDefault(
+        XWikiRenderingEngine.class);
+    expect(xwiki.getRenderingEngine()).andReturn(renderingEngine).anyTimes();
+    expect(renderingEngine.interpretText(eq("link"), same(context.getDoc()),
+        same(context))).andReturn("rendered link");
+    replayDefault();
+    assertNotNull(xwiki.getRenderingEngine());
+    assertEquals("renderingEngine schould get set to replay by replayDefault because it"
+        + " is created with createMockAndAddToDefault.", "rendered link",
+        xwiki.getRenderingEngine().interpretText("link",
+        context.getDoc(), context));
+    verifyDefault();
   }
 
-  private void verifyAll(Object ... mocks) {
-    verifyDefault(mocks);
-  }
 }
