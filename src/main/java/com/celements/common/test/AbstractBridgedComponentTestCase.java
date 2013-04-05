@@ -19,10 +19,15 @@
  */
 package com.celements.common.test;
 
+import static org.easymock.EasyMock.*;
+
+import java.io.File;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+
+import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,8 +38,11 @@ import org.xwiki.component.manager.ComponentLookupException;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
+import org.xwiki.environment.Environment;
+import org.xwiki.environment.internal.ServletEnvironment;
 import org.xwiki.test.jmock.AbstractComponentTestCase;
 
+import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.web.Utils;
 import com.xpn.xwiki.web.XWikiMessageTool;
@@ -47,10 +55,17 @@ import com.xpn.xwiki.web.XWikiMessageTool;
  */
 public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase {
 
-  private static Log mLogger = LogFactory.getFactory().getInstance(
+  private static Log LOGGER = LogFactory.getFactory().getInstance(
       AbstractBridgedComponentTestCase.class);
 
   private XWikiContext context;
+  private XWiki wikiMock;
+
+  private ServletContext servletContextMock;
+
+  public XWiki getWikiMock() {
+    return wikiMock;
+  }
 
   @Before
   public void setUp() throws Exception {
@@ -66,11 +81,21 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
   
       this.context.setDatabase("xwikidb");
       this.context.setMainXWiki("xwikiWiki");
+      wikiMock = createMock(XWiki.class);
+      context.setWiki(wikiMock);
       getExecutionContext().setProperty("xwikicontext", this.context);
   
       // We need to initialize the Component Manager so that the components can be looked up
       getContext().put(ComponentManager.class.getName(), getComponentManager());
     }
+    servletContextMock = createMock(ServletContext.class);
+    ServletEnvironment environment = (ServletEnvironment) getComponentManager(
+      ).getInstance(Environment.class);
+    environment.setServletContext(servletContextMock);
+    expect(servletContextMock.getResourceAsStream(eq(
+      "/WEB-INF/cache/infinispan/config.xml"))).andReturn(null).anyTimes();
+    expect(servletContextMock.getAttribute(eq("javax.servlet.context.tempdir"))
+      ).andReturn(new File(System.getProperty("java.io.tmpdir"))).anyTimes();
   }
 
 private ExecutionContext getExecutionContext() throws ComponentLookupException, Exception {
@@ -129,10 +154,21 @@ private ExecutionContext getExecutionContext() throws ComponentLookupException, 
       if (injectedMessages.containsKey(key)) {
         return injectedMessages.get(key);
       } else {
-        mLogger.error("TestMessageTool missing the key '" + key + "'.");
+        LOGGER.error("TestMessageTool missing the key '" + key + "'.");
         return super.get(key);
       }
     }
 
   }
+
+  protected void replayDefault(Object ... mocks) {
+    replay(wikiMock, servletContextMock);
+    replay(mocks);
+  }
+
+  protected void verifyDefault(Object ... mocks) {
+    verify(wikiMock, servletContextMock);
+    verify(mocks);
+  }
+
 }

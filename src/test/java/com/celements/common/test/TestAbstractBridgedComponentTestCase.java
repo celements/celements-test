@@ -18,11 +18,11 @@ package com.celements.common.test;
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.xwiki.environment.Environment;
 import org.xwiki.model.reference.EntityReferenceSerializer;
 
 import com.xpn.xwiki.XWiki;
@@ -38,8 +38,7 @@ public class TestAbstractBridgedComponentTestCase
   @Before
   public void setUp_TestAbstractBridgedComponentTestCase() throws Exception {
     context = getContext();
-    xwiki = createMock(XWiki.class);
-    context.setWiki(xwiki);
+    xwiki = getWikiMock();
   }
 
   @Test
@@ -50,14 +49,30 @@ public class TestAbstractBridgedComponentTestCase
     verifyAll();
   }
 
+  @Test
+  public void testServletEnvironment_setup() throws Exception {
+    replayAll();
+    Environment environment = getComponentManager().getInstance(Environment.class);
+    assertNotNull(environment);
+    assertNotNull(environment.getTemporaryDirectory());
+    verifyAll();
+  }
+
+  @Test
+  public void testServletEnvironment_get_infinispan_cache_config() throws Exception {
+    replayAll();
+    Environment environment = getComponentManager().getInstance(Environment.class);
+    assertNotNull(environment);
+    assertNull(environment.getResourceAsStream("/WEB-INF/cache/infinispan/config.xml"));
+    verifyAll();
+  }
+
 
   private void replayAll(Object ... mocks) {
-    replay(xwiki);
-    replay(mocks);
+    replayDefault(mocks);
   }
 
   private void verifyAll(Object ... mocks) {
-    verify(xwiki);
-    verify(mocks);
+    verifyDefault(mocks);
   }
 }
