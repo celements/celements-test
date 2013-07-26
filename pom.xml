@@ -4,12 +4,12 @@
 	<parent>
 		<groupId>com.celements</groupId>
 		<artifactId>base-pom</artifactId>
-		<version>3.1-SNAPSHOT</version>
+		<version>4.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.celements</groupId>
 	<artifactId>celements-shared-tests</artifactId>
-	<version>3.0-SNAPSHOT</version>
+	<version>4.0-SNAPSHOT</version>
 	<description>Celements Shared Tests</description>
   <scm>
     <connection>scm:git:git@github.com:celements/celements-shared-tests.git</connection>
