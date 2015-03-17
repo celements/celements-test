@@ -19,9 +19,7 @@
  */
 package com.celements.common.test;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import static org.easymock.EasyMock.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,11 +30,11 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
 import org.junit.After;
 import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
@@ -55,7 +53,7 @@ import com.xpn.xwiki.web.XWikiMessageTool;
  */
 public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase {
 
-  private static Log LOGGER = LogFactory.getFactory().getInstance(
+  private static Logger LOGGER = LoggerFactory.getLogger(
       AbstractBridgedComponentTestCase.class);
 
   private XWikiContext context;
@@ -128,6 +126,14 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
       }
     }
     return this.context;
+  }
+
+  public TestMessageTool getMessageToolStub() {
+    XWikiMessageTool msgTool = getContext().getMessageTool();
+    if (msgTool instanceof TestMessageTool) {
+      return (TestMessageTool) msgTool;
+    }
+    return null;
   }
 
   public class TestMessageTool extends XWikiMessageTool {
