@@ -143,6 +143,10 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
       injectedMessages.put(key, value);
     }
 
+    public void injectMessage(String key, List<?> params, String value) {
+      injectedMessages.put(key + StringUtils.join(params, ","), value);
+    }
+
     @Override
     public String get(String key) {
       if (injectedMessages.containsKey(key)) {
