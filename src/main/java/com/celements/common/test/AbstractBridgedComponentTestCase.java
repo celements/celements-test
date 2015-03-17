@@ -19,15 +19,19 @@
  */
 package com.celements.common.test;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -146,6 +150,18 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
       } else {
         LOGGER.error("TestMessageTool missing the key '" + key + "'.");
         return super.get(key);
+      }
+    }
+    
+    @Override
+    public String get(String key, List<?> params) {
+      String paramsStr = StringUtils.join(params, ",");
+      if (injectedMessages.containsKey(key + paramsStr)) {
+        return injectedMessages.get(key + paramsStr);
+      } else {
+        LOGGER.error("TestMessageTool missing the key '" + key + "' for params '" +
+            paramsStr + "'.");
+        return super.get(key, params);
       }
     }
 
