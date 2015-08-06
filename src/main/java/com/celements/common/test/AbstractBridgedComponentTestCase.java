@@ -35,7 +35,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xwiki.component.descriptor.DefaultComponentDescriptor;
 import org.xwiki.component.manager.ComponentManager;
+import org.xwiki.component.manager.ComponentRepositoryException;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
 import org.xwiki.test.AbstractComponentTestCase;
@@ -46,10 +48,12 @@ import com.xpn.xwiki.web.Utils;
 import com.xpn.xwiki.web.XWikiMessageTool;
 
 /**
- * Extension of {@link org.xwiki.test.AbstractComponentTestCase} that sets up a bridge between the new Execution
- * Context and the old XWikiContext. This allows code that uses XWikiContext to be tested using this Test Case class.
+ * Extension of {@link org.xwiki.test.AbstractComponentTestCase} that sets up a bridge
+ * between the new Execution Context and the old XWikiContext. This allows code that uses
+ * XWikiContext to be tested using this Test Case class.
  * 
- * @version: AbstractBridgedComponentTestCase.java fpichler copied from AbstractBridgedComponentTestCase.java
+ * @version: AbstractBridgedComponentTestCase.java fpichler copied from
+ *           AbstractBridgedComponentTestCase.java
  */
 public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase {
 
@@ -58,10 +62,11 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
 
   private XWikiContext context;
   private XWiki wikiMock;
-  private Set<Object> defaultMocks = new HashSet<Object>();
-//  private DocumentAccessBridge mockDocumentAccessBridge;
-//  private DocumentNameSerializer mockDocumentNameSerializer;
-//  private DocumentNameFactory mockDocumentNameFactory;
+  private Set<Object> defaultMocks = new HashSet<>();
+  private Map<DefaultComponentDescriptor<?>, Object> componentBackupMap = new HashMap<>();
+  // private DocumentAccessBridge mockDocumentAccessBridge;
+  // private DocumentNameSerializer mockDocumentNameSerializer;
+  // private DocumentNameFactory mockDocumentNameFactory;
 
   public XWiki getWikiMock() {
     return wikiMock;
@@ -71,33 +76,41 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
   public void setUp() throws Exception {
     super.setUp();
 
-    // Statically store the component manager in {@link Utils} to be able to access it without
-    // the context.
+    // Statically store the component manager in {@link Utils} to be able to access it
+    // without the context.
     Utils.setComponentManager(getComponentManager());
 
     this.context = (XWikiContext) getExecutionContext().getProperty("xwikicontext");
     if (this.context == null) {
       this.context = new XWikiContext();
-  
+
       this.context.setDatabase("xwikidb");
       this.context.setMainXWiki("xwikiWiki");
       wikiMock = createMockAndAddToDefault(XWiki.class);
       context.setWiki(wikiMock);
       getExecutionContext().setProperty("xwikicontext", this.context);
-  
-      // We need to initialize the Component Manager so that the components can be looked up
+
+      // initialize the Component Manager so that components can be looked up
       getContext().put(ComponentManager.class.getName(), getComponentManager());
     }
   }
 
   private ExecutionContext getExecutionContext() throws Exception {
-    return ((Execution)getComponentManager().lookup(Execution.class)).getContext();
+    return ((Execution) getComponentManager().lookup(Execution.class)).getContext();
   }
 
   @After
+  @SuppressWarnings("unchecked")
   public void tearDown() throws Exception {
-      Utils.setComponentManager(null);
-      super.tearDown();
+    for (DefaultComponentDescriptor<?> descriptor : componentBackupMap.keySet()) {
+      Utils.getComponentManager().registerComponent(
+          (DefaultComponentDescriptor<Object>) descriptor,
+          componentBackupMap.get(descriptor));
+    }
+    componentBackupMap.clear();
+    defaultMocks.clear();
+    Utils.setComponentManager(null);
+    super.tearDown();
   }
 
   @SuppressWarnings("unchecked")
@@ -107,22 +120,21 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
     }
     if (this.context.get("msg") == null) {
       Locale locale = new Locale(this.context.getLanguage());
-      ResourceBundle bundle = ResourceBundle.getBundle("ApplicationResources",
-          locale);
+      ResourceBundle bundle = ResourceBundle.getBundle("ApplicationResources", locale);
       if (bundle == null) {
-          bundle = ResourceBundle.getBundle("ApplicationResources");
+        bundle = ResourceBundle.getBundle("ApplicationResources");
       }
       XWikiMessageTool msg = new TestMessageTool(bundle, context);
       context.put("msg", msg);
       VelocityContext vcontext = ((VelocityContext) context.get("vcontext"));
       if (vcontext != null) {
-          vcontext.put("msg", msg);
-          vcontext.put("locale", locale);
+        vcontext.put("msg", msg);
+        vcontext.put("locale", locale);
       }
-      Map gcontext = (Map) context.get("gcontext");
+      Map<String, Object> gcontext = (Map<String, Object>) context.get("gcontext");
       if (gcontext != null) {
-          gcontext.put("msg", msg);
-          gcontext.put("locale", locale);
+        gcontext.put("msg", msg);
+        gcontext.put("locale", locale);
       }
     }
     return this.context;
@@ -137,9 +149,8 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
   }
 
   public class TestMessageTool extends XWikiMessageTool {
-    
-    private Map<String, String> injectedMessages =
-      new HashMap<String, String>();
+
+    private Map<String, String> injectedMessages = new HashMap<>();
 
     public TestMessageTool(ResourceBundle bundle, XWikiContext context) {
       super(bundle, context);
@@ -162,19 +173,37 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
         return super.get(key);
       }
     }
-    
+
     @Override
     public String get(String key, List<?> params) {
       String paramsStr = StringUtils.join(params, ",");
       if (injectedMessages.containsKey(key + paramsStr)) {
         return injectedMessages.get(key + paramsStr);
       } else {
-        LOGGER.error("TestMessageTool missing the key '" + key + "' for params '" +
-            paramsStr + "'.");
+        LOGGER.error("TestMessageTool missing the key '" + key + "' for params '"
+            + paramsStr + "'.");
         return super.get(key, params);
       }
     }
 
+  }
+
+  public <T> T registerComponentMock(Class<T> role, String hint
+      ) throws ComponentRepositoryException {
+    DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<T>();
+    descriptor.setRole(role);
+    descriptor.setRoleHint(hint);
+    T componentMock;
+    if (componentBackupMap.containsKey(descriptor)) {
+      componentMock = Utils.getComponent(role, hint);
+    } else {
+      componentMock = createMock(role);
+      T componentBackup = Utils.getComponent(role, hint);
+      Utils.getComponentManager().registerComponent(descriptor, componentMock);
+      defaultMocks.add(componentMock);
+      componentBackupMap.put(descriptor, componentBackup);
+    }
+    return componentMock;
   }
 
   public <T> T createMockAndAddToDefault(final Class<T> toMock) {
@@ -183,12 +212,12 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
     return newMock;
   }
 
-  protected void replayDefault(Object ... mocks) {
+  protected void replayDefault(Object... mocks) {
     replay(defaultMocks.toArray());
     replay(mocks);
   }
 
-  protected void verifyDefault(Object ... mocks) {
+  protected void verifyDefault(Object... mocks) {
     verify(defaultMocks.toArray());
     verify(mocks);
   }
