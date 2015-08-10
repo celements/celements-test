@@ -55,7 +55,7 @@ import com.xpn.xwiki.web.XWikiMessageTool;
  * @version: AbstractBridgedComponentTestCase.java fpichler copied from
  *           AbstractBridgedComponentTestCase.java
  */
-public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase {
+public abstract class AbstractBridgedComponentTestCase extends AbstractComponentTestCase {
 
   private static Logger LOGGER = LoggerFactory.getLogger(
       AbstractBridgedComponentTestCase.class);
@@ -63,7 +63,6 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
   private XWikiContext context;
   private XWiki wikiMock;
   private Set<Object> defaultMocks = new HashSet<>();
-  private Map<DefaultComponentDescriptor<?>, Object> componentBackupMap = new HashMap<>();
   // private DocumentAccessBridge mockDocumentAccessBridge;
   // private DocumentNameSerializer mockDocumentNameSerializer;
   // private DocumentNameFactory mockDocumentNameFactory;
@@ -100,14 +99,7 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
   }
 
   @After
-  @SuppressWarnings("unchecked")
   public void tearDown() throws Exception {
-    for (DefaultComponentDescriptor<?> descriptor : componentBackupMap.keySet()) {
-      Utils.getComponentManager().registerComponent(
-          (DefaultComponentDescriptor<Object>) descriptor,
-          componentBackupMap.get(descriptor));
-    }
-    componentBackupMap.clear();
     defaultMocks.clear();
     Utils.setComponentManager(null);
     super.tearDown();
@@ -193,16 +185,9 @@ public class AbstractBridgedComponentTestCase extends AbstractComponentTestCase 
     DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<T>();
     descriptor.setRole(role);
     descriptor.setRoleHint(hint);
-    T componentMock;
-    if (componentBackupMap.containsKey(descriptor)) {
-      componentMock = Utils.getComponent(role, hint);
-    } else {
-      componentMock = createMock(role);
-      T componentBackup = Utils.getComponent(role, hint);
-      Utils.getComponentManager().registerComponent(descriptor, componentMock);
-      defaultMocks.add(componentMock);
-      componentBackupMap.put(descriptor, componentBackup);
-    }
+    T componentMock = createMock(role);
+    Utils.getComponentManager().registerComponent(descriptor, componentMock);
+    defaultMocks.add(componentMock);
     return componentMock;
   }
 
