@@ -180,6 +180,10 @@ public abstract class AbstractBridgedComponentTestCase extends AbstractComponent
 
   }
 
+  public <T> T registerComponentMock(Class<T> role) throws ComponentRepositoryException {
+    return registerComponentMock(role, "default");
+  }
+
   public <T> T registerComponentMock(Class<T> role, String hint
       ) throws ComponentRepositoryException {
     DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<T>();
