@@ -29,19 +29,22 @@ import org.xwiki.cache.eviction.LRUEvictionConfiguration;
 import org.xwiki.environment.Environment;
 import org.xwiki.model.reference.EntityReferenceSerializer;
 
+import com.celements.common.test.service.ITestServiceRole;
+import com.celements.common.test.service.InjectedTestService;
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.render.XWikiRenderingEngine;
 import com.xpn.xwiki.web.Utils;
 
-public class AbstractBridgedComponentTestCaseTest
-    extends AbstractBridgedComponentTestCase {
+public class AbstractBridgedComponentTestCaseTest extends AbstractBridgedComponentTestCase {
 
   private XWikiContext context;
   private XWiki xwiki;
 
   @Before
-  public void setUp_TestAbstractBridgedComponentTestCase() throws Exception {
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
     context = getContext();
     xwiki = getWikiMock();
   }
@@ -105,6 +108,49 @@ public class AbstractBridgedComponentTestCaseTest
         xwiki.getRenderingEngine().interpretText("link",
         context.getDoc(), context));
     verifyDefault();
+  }
+
+  @Test
+  public void test_registerComponentMock() throws Exception {
+    ITestServiceRole injTestServiceMock = registerComponentMock(ITestServiceRole.class,
+        "injected");
+    ITestServiceRole testService = Utils.getComponent(ITestServiceRole.class);
+    Object obj = new Object();
+    expect(injTestServiceMock.getObj()).andReturn(obj).once();
+    replayDefault();
+    Object ret = testService.getInjectedComponent().getObj();
+    verifyDefault();
+    assertSame(obj, ret);
+  }
+
+  @Test
+  public void test_registerComponentMock_wrongOrder() throws Exception {
+    ITestServiceRole testService = Utils.getComponent(ITestServiceRole.class);
+    registerComponentMock(ITestServiceRole.class, "injected");
+    replayDefault();
+    Object ret = testService.getInjectedComponent().getObj();
+    verifyDefault();
+    assertSame(InjectedTestService.OBJ, ret);
+  }
+
+  @Test
+  public void test_registerComponentMock_noMock() throws Exception {
+    ITestServiceRole testService = Utils.getComponent(ITestServiceRole.class);
+    replayDefault();
+    Object ret = testService.getInjectedComponent().getObj();
+    verifyDefault();
+    assertSame(InjectedTestService.OBJ, ret);
+  }
+
+  @Test
+  public void test_registerComponentMock_setBack() throws Exception {
+    ITestServiceRole testServiceMock = registerComponentMock(ITestServiceRole.class,
+        "injected");
+    assertSame(testServiceMock, Utils.getComponent(ITestServiceRole.class, "injected"));
+    this.tearDown();
+    this.setUp();
+    assertNotNull(Utils.getComponent(ITestServiceRole.class, "injected"));
+    assertNotSame(testServiceMock, Utils.getComponent(ITestServiceRole.class, "injected"));
   }
 
 }

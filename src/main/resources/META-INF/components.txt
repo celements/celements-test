@@ -1,0 +1,2 @@
+com.celements.common.test.service.TestService
+com.celements.common.test.service.InjectedTestService
