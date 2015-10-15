@@ -86,9 +86,6 @@ public abstract class AbstractBridgedComponentTestCase extends AbstractComponent
       this.context.setDatabase("xwikidb");
       this.context.setMainXWiki("xwikiWiki");
       wikiMock = createMockAndAddToDefault(XWiki.class);
-      //Important for unstable-2.0 branch.
-      expect(wikiMock.isVirtual()).andReturn(true).anyTimes();
-      expect(wikiMock.isVirtualMode()).andReturn(true).anyTimes();
       context.setWiki(wikiMock);
       getExecutionContext().setProperty("xwikicontext", this.context);
 

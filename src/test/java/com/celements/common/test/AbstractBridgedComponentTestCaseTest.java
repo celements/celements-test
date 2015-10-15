@@ -134,12 +134,4 @@ public class AbstractBridgedComponentTestCaseTest extends AbstractBridgedCompone
     assertNotSame(testServiceMock, Utils.getComponent(ITestServiceRole.class, "injected"));
   }
 
-
-  @Test
-  public void test_wikiMock_isVirtual() throws Exception {
-    replayDefault();
-    assertTrue("init isVirtual to true.", getWikiMock().isVirtual());
-    assertTrue("init isVirtualMode to true.", getWikiMock().isVirtualMode());
-    verifyDefault();
-  }
 }
