@@ -8,11 +8,19 @@ import org.easymock.IAnswer;
 import org.xwiki.model.reference.DocumentReference;
 
 import com.xpn.xwiki.XWikiException;
+import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.BaseClass;
 import com.xpn.xwiki.objects.classes.PropertyClass;
 
 public class CelementsTestUtils {
+  
+  public static XWikiDocument createDocMock(AbstractBridgedComponentTestCase testCase,
+      DocumentReference docRef) {
+    XWikiDocument docMock = testCase.createMockAndAddToDefault(XWikiDocument.class);
+    expect(docMock.getDocumentReference()).andReturn(docRef).anyTimes();
+    return docMock;
+  }
 
   public static BaseClass expectNewBaseObject(AbstractBridgedComponentTestCase testCase,
       final DocumentReference classRef) throws XWikiException {
