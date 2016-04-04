@@ -33,7 +33,10 @@ import com.xpn.xwiki.XWikiContext;
  * 
  * @version: AbstractBridgedComponentTestCase.java fpichler copied from
  *           AbstractBridgedComponentTestCase.java
+ * @deprecated instead use {@link AbstractComponentTest} together with static import
+ * {@link CelementsTestUtils}
  */
+@Deprecated
 public abstract class AbstractBridgedComponentTestCase extends AbstractComponentTest {
 
   public XWiki getWikiMock() {
