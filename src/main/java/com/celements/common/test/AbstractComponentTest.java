@@ -39,6 +39,7 @@ import com.xpn.xwiki.web.Utils;
 public abstract class AbstractComponentTest extends AbstractComponentTestCase {
 
   @Before
+  @Override
   public void setUp() throws Exception {
     super.setUp();
 
@@ -51,6 +52,7 @@ public abstract class AbstractComponentTest extends AbstractComponentTestCase {
   }
 
   @After
+  @Override
   public void tearDown() throws Exception {
     getDefaultMocks().clear();
     Utils.setComponentManager(null);
