@@ -29,12 +29,8 @@ import org.xwiki.test.AbstractComponentTestCase;
 import com.xpn.xwiki.web.Utils;
 
 /**
- * Extension of {@link org.xwiki.test.AbstractComponentTestCase} that sets up a bridge
- * between the new Execution Context and the old XWikiContext. This allows code that uses
- * XWikiContext to be tested using this Test Case class.
- * 
- * @version: AbstractBridgedComponentTestCase.java fpichler copied from
- *           AbstractBridgedComponentTestCase.java
+ * Extension of {@link org.xwiki.test.AbstractComponentTestCase} which can be used
+ * together with {@link CelementsTestUtils}
  */
 public abstract class AbstractComponentTest extends AbstractComponentTestCase {
 
@@ -46,7 +42,7 @@ public abstract class AbstractComponentTest extends AbstractComponentTestCase {
     // Statically store the component manager in {@link Utils} to be able to access it
     // without the context.
     Utils.setComponentManager(getComponentManager());
-    
+
     // initialize context and wiki mock
     getWikiMock();
   }
