@@ -27,26 +27,27 @@ import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.BaseClass;
 import com.xpn.xwiki.objects.classes.PropertyClass;
+import com.xpn.xwiki.store.XWikiStoreInterface;
 import com.xpn.xwiki.web.Utils;
 import com.xpn.xwiki.web.XWikiMessageTool;
 
 public class CelementsTestUtils {
-  
+
   public static final String EXECUTIONCONTEXT_KEY_MOCKS = "default_mocks";
   public static final String DEFAULT_DB = "xwikidb";
   public static final String DEFAULT_MAIN_WIKI = "xwikiWiki";
   public static final String DEFAULT_LANG = "de";
-  
+
   public static EasyMock easyMock;
 
   private static ExecutionContext getExecutionContext() {
-    return ((Execution) Utils.getComponent(Execution.class)).getContext();
+    return Utils.getComponent(Execution.class).getContext();
   }
-  
+
   @SuppressWarnings("unchecked")
   public static Collection<Object> getDefaultMocks() {
-    Collection<Object> defaultMocks = (Collection<Object>) getExecutionContext(
-        ).getProperty(EXECUTIONCONTEXT_KEY_MOCKS);
+    Collection<Object> defaultMocks = (Collection<Object>) getExecutionContext().getProperty(
+        EXECUTIONCONTEXT_KEY_MOCKS);
     if (defaultMocks == null) {
       defaultMocks = new ArrayList<>();
       getExecutionContext().setProperty(EXECUTIONCONTEXT_KEY_MOCKS, defaultMocks);
@@ -59,7 +60,7 @@ public class CelementsTestUtils {
     getDefaultMocks().add(newMock);
     return newMock;
   }
-  
+
   @SuppressWarnings("unchecked")
   public static <T> T getMock(final Class<T> mockClass) {
     T mock = null;
@@ -116,6 +117,15 @@ public class CelementsTestUtils {
     return context;
   }
 
+  public static XWikiStoreInterface getStoreMock() throws ComponentRepositoryException {
+    XWikiStoreInterface storeMock = getMock(XWikiStoreInterface.class);
+    if (storeMock == null) {
+      storeMock = registerComponentMock(XWikiStoreInterface.class);
+      expect(getWikiMock().getStore()).andReturn(storeMock).anyTimes();
+    }
+    return storeMock;
+  }
+
   public static TestMessageTool getMessageToolStub() {
     XWikiMessageTool msgTool = getContext().getMessageTool();
     if (msgTool instanceof TestMessageTool) {
@@ -123,9 +133,8 @@ public class CelementsTestUtils {
     }
     return null;
   }
-  
-  public static XWikiDocument createDocMock(
-      DocumentReference docRef) {
+
+  public static XWikiDocument createDocMock(DocumentReference docRef) {
     XWikiDocument docMock = createMockAndAddToDefault(XWikiDocument.class);
     expect(docMock.getDocumentReference()).andReturn(docRef).anyTimes();
     return docMock;
@@ -140,52 +149,51 @@ public class CelementsTestUtils {
     return expectNewBaseObject(classRef);
   }
 
-  public static BaseClass expectNewBaseObject(
-      final DocumentReference classRef) throws XWikiException {
+  public static BaseClass expectNewBaseObject(final DocumentReference classRef)
+      throws XWikiException {
     BaseClass bClass = createBaseClassMock(classRef);
-    expect(bClass.newCustomClassInstance(same(getContext()))).andAnswer(
-      new IAnswer<BaseObject>() {
-        @Override
-        public BaseObject answer() throws Throwable {
-          BaseObject bObj = new BaseObject();
-          bObj.setXClassReference(classRef);
-          return bObj;
-        }
-      }).anyTimes();
+    expect(bClass.newCustomClassInstance(same(getContext()))).andAnswer(new IAnswer<BaseObject>() {
+
+      @Override
+      public BaseObject answer() throws Throwable {
+        BaseObject bObj = new BaseObject();
+        bObj.setXClassReference(classRef);
+        return bObj;
+      }
+    }).anyTimes();
     return bClass;
   }
-  
+
   /**
    * @deprecated instead use expectPropertyClass(DocumentReference, String, PropertyClass)
    */
   @Deprecated
-  public static  BaseClass expectPropertyClass(AbstractBridgedComponentTestCase testCase,
-      DocumentReference classRef, String fieldName, PropertyClass propClass
-      ) throws XWikiException {
+  public static BaseClass expectPropertyClass(AbstractBridgedComponentTestCase testCase,
+      DocumentReference classRef, String fieldName, PropertyClass propClass) throws XWikiException {
     return expectPropertyClass(classRef, fieldName, propClass);
   }
 
-  public static  BaseClass expectPropertyClass(DocumentReference classRef,
-      String fieldName, PropertyClass propClass) throws XWikiException {
+  public static BaseClass expectPropertyClass(DocumentReference classRef, String fieldName,
+      PropertyClass propClass) throws XWikiException {
     BaseClass bClass = createBaseClassMock(classRef);
     expectPropertyClass(bClass, fieldName, propClass);
     return bClass;
   }
-  
+
   public static BaseClass expectPropertyClass(BaseClass bClass, String fieldName,
       PropertyClass propClass) {
     expect(bClass.get(eq(fieldName))).andReturn(propClass).anyTimes();
     return bClass;
   }
-  
+
   public static BaseClass expectPropertyClasses(DocumentReference classRef,
       Map<String, PropertyClass> fieldMap) throws XWikiException {
     BaseClass bClass = createBaseClassMock(classRef);
     expectPropertyClasses(bClass, fieldMap);
     return bClass;
   }
-  
-  public static  BaseClass expectPropertyClasses(BaseClass bClass,
+
+  public static BaseClass expectPropertyClasses(BaseClass bClass,
       Map<String, PropertyClass> fieldMap) {
     for (String fieldName : fieldMap.keySet()) {
       expectPropertyClass(bClass, fieldName, fieldMap.get(fieldName));
@@ -197,49 +205,55 @@ public class CelementsTestUtils {
    * @deprecated instead use createBaseClassMock(DocumentReference)
    */
   @Deprecated
-  public static  BaseClass createBaseClassMock(AbstractBridgedComponentTestCase testCase,
+  public static BaseClass createBaseClassMock(AbstractBridgedComponentTestCase testCase,
       DocumentReference classRef) throws XWikiException {
     return createBaseClassMock(classRef);
   }
 
-  public static  BaseClass createBaseClassMock(DocumentReference classRef
-      ) throws XWikiException {
+  public static BaseClass createBaseClassMock(DocumentReference classRef) throws XWikiException {
     BaseClass bClass = createMockAndAddToDefault(BaseClass.class);
-    expect(getWikiMock().getXClass(eq(classRef), same(getContext()))
-        ).andReturn(bClass).anyTimes();
+    expect(getWikiMock().getXClass(eq(classRef), same(getContext()))).andReturn(bClass).anyTimes();
     expect(bClass.getXClassReference()).andReturn(classRef).anyTimes();
     return bClass;
   }
-  
+
   public static void setConfigSrcProperty(String key, Object value) {
-    ((MockConfigurationSource) Utils.getComponent(ConfigurationSource.class)
-        ).setProperty(key, value);
+    ((MockConfigurationSource) Utils.getComponent(ConfigurationSource.class)).setProperty(key,
+        value);
   }
 
-  public static void registerComponentMocks(Class<?>... roles
-      ) throws ComponentRepositoryException {
+  public static void registerComponentMocks(Class<?>... roles) throws ComponentRepositoryException {
     for (Class<?> role : roles) {
       registerComponentMock(role);
     }
   }
 
-  public static <T> T registerComponentMock(Class<T> role
-      ) throws ComponentRepositoryException {
+  public static <T> T registerComponentMock(Class<T> role) throws ComponentRepositoryException {
     return registerComponentMock(role, "default");
   }
 
-  public static <T> T registerComponentMock(Class<T> role, String hint
-      ) throws ComponentRepositoryException {
+  public static <T> T registerComponentMock(Class<T> role, String hint)
+      throws ComponentRepositoryException {
     return registerComponentMock(role, hint, createMockAndAddToDefault(role));
   }
 
-  public static <T> T registerComponentMock(Class<T> role, String hint, T componentMock
-      ) throws ComponentRepositoryException {
+  public static <T> T registerComponentMock(Class<T> role, String hint, T componentMock)
+      throws ComponentRepositoryException {
     DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<T>();
     descriptor.setRole(role);
     descriptor.setRoleHint(hint);
     Utils.getComponentManager().registerComponent(descriptor, componentMock);
     return componentMock;
+  }
+
+  public static void replayDefault(Object... mocks) {
+    replay(getDefaultMocks().toArray());
+    replay(mocks);
+  }
+
+  public static void verifyDefault(Object... mocks) {
+    verify(getDefaultMocks().toArray());
+    verify(mocks);
   }
 
 }

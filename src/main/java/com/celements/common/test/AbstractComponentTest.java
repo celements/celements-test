@@ -20,7 +20,6 @@
 package com.celements.common.test;
 
 import static com.celements.common.test.CelementsTestUtils.*;
-import static org.easymock.EasyMock.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -53,16 +52,6 @@ public abstract class AbstractComponentTest extends AbstractComponentTestCase {
     getDefaultMocks().clear();
     Utils.setComponentManager(null);
     super.tearDown();
-  }
-
-  protected void replayDefault(Object... mocks) {
-    replay(getDefaultMocks().toArray());
-    replay(mocks);
-  }
-
-  protected void verifyDefault(Object... mocks) {
-    verify(getDefaultMocks().toArray());
-    verify(mocks);
   }
 
 }
