@@ -67,6 +67,11 @@
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-java</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.mutabilitydetector</groupId>
+      <artifactId>MutabilityDetector</artifactId>
+      <version>0.9.5</version>
+    </dependency>
     <!--
       Make sure we provide a default implementation of slf4j for any test
       indirectly use it
