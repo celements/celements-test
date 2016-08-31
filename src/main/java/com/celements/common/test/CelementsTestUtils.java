@@ -2,15 +2,13 @@ package com.celements.common.test;
 
 import static org.easymock.EasyMock.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.velocity.VelocityContext;
-import org.easymock.EasyMock;
 import org.easymock.IAnswer;
+import org.xwiki.component.descriptor.ComponentDescriptor;
 import org.xwiki.component.descriptor.DefaultComponentDescriptor;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.component.manager.ComponentRepositoryException;
@@ -38,42 +36,36 @@ public class CelementsTestUtils {
   public static final String DEFAULT_MAIN_WIKI = "xwikiWiki";
   public static final String DEFAULT_LANG = "de";
 
-  public static EasyMock easyMock;
-
   private static ExecutionContext getExecutionContext() {
     return Utils.getComponent(Execution.class).getContext();
   }
 
-  @SuppressWarnings("unchecked")
-  public static Collection<Object> getDefaultMocks() {
-    Collection<Object> defaultMocks = (Collection<Object>) getExecutionContext().getProperty(
+  public static DefaultMocks getDefaultMocks() {
+    DefaultMocks defaultMocks = (DefaultMocks) getExecutionContext().getProperty(
         EXECUTIONCONTEXT_KEY_MOCKS);
     if (defaultMocks == null) {
-      defaultMocks = new ArrayList<>();
+      defaultMocks = new DefaultMocks();
       getExecutionContext().setProperty(EXECUTIONCONTEXT_KEY_MOCKS, defaultMocks);
     }
     return defaultMocks;
   }
 
-  public static <T> T createMockAndAddToDefault(final Class<T> toMock) {
+  public static <T> T createMockAndAddToDefault(Class<T> toMock) {
+    return createMockAndAddToDefault(toMock, "default");
+  }
+
+  public static <T> T createMockAndAddToDefault(Class<T> toMock, String name) {
     T newMock = createMock(toMock);
-    getDefaultMocks().add(newMock);
+    getDefaultMocks().put(getDescriptor(toMock, name), newMock);
     return newMock;
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> T getMock(final Class<T> mockClass) {
-    T mock = null;
-    for (Object obj : getDefaultMocks()) {
-      if (mockClass.isInstance(obj)) {
-        if (mock == null) {
-          mock = (T) obj;
-        } else {
-          throw new IllegalStateException("Multiple mocks for class " + mockClass);
-        }
-      }
-    }
-    return mock;
+    return getMock(mockClass, "default");
+  }
+
+  public static <T> T getMock(final Class<T> mockClass, String name) {
+    return getDefaultMocks().get(getDescriptor(mockClass, name));
   }
 
   public static XWiki getWikiMock() {
@@ -234,25 +226,39 @@ public class CelementsTestUtils {
 
   public static <T> T registerComponentMock(Class<T> role, String hint)
       throws ComponentRepositoryException {
-    return registerComponentMock(role, hint, createMockAndAddToDefault(role));
+    return registerComponent(role, hint, createMockAndAddToDefault(role, hint));
   }
 
+  /**
+   * @deprecated instead use {@link #registerComponent(Class, String, Object)} due to misleading
+   *             naming
+   */
+  @Deprecated
   public static <T> T registerComponentMock(Class<T> role, String hint, T componentMock)
       throws ComponentRepositoryException {
-    DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<T>();
+    return registerComponent(role, hint, componentMock);
+  }
+
+  public static <T> T registerComponent(Class<T> role, String hint, T component)
+      throws ComponentRepositoryException {
+    Utils.getComponentManager().registerComponent(getDescriptor(role, hint), component);
+    return component;
+  }
+
+  public static <T> ComponentDescriptor<T> getDescriptor(Class<T> role, String hint) {
+    DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<>();
     descriptor.setRole(role);
     descriptor.setRoleHint(hint);
-    Utils.getComponentManager().registerComponent(descriptor, componentMock);
-    return componentMock;
+    return descriptor;
   }
 
   public static void replayDefault(Object... mocks) {
-    replay(getDefaultMocks().toArray());
+    replay(getDefaultMocks().getAll().toArray());
     replay(mocks);
   }
 
   public static void verifyDefault(Object... mocks) {
-    verify(getDefaultMocks().toArray());
+    verify(getDefaultMocks().getAll().toArray());
     verify(mocks);
   }
 
