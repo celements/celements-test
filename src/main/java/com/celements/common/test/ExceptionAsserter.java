@@ -8,9 +8,8 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 /**
- * asserts that an {@link Exception} of type T is thrown within {@link #execute()}. for further
- * asserts use {@link #getThrownException()}. note that the evaluation is already done while
- * constructing to assure correct usage.
+ * asserts that an {@link Exception} of type T is thrown within {@link #execute()} when calling
+ * {@link #evaluate()}.
  *
  * @param <T>
  */
@@ -19,7 +18,6 @@ public abstract class ExceptionAsserter<T extends Exception> {
   private final Class<T> token;
   private final T expected;
   private final String message;
-  private final T exception;
 
   public ExceptionAsserter(@NotNull Class<T> token) {
     this(token, "");
@@ -38,14 +36,9 @@ public abstract class ExceptionAsserter<T extends Exception> {
     this.token = checkNotNull(token);
     this.expected = expected;
     this.message = message;
-    this.exception = checkNotNull(evaluate());
   }
 
-  public @NotNull T getThrownException() {
-    return exception;
-  }
-
-  private @NotNull T evaluate() {
+  public @NotNull T evaluate() {
     try {
       execute();
       fail(format("expecting [{0}]: {1}", token.getSimpleName(), message));
