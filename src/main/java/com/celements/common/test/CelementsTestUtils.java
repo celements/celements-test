@@ -239,7 +239,7 @@ public class CelementsTestUtils {
 
   public static <T> T registerComponentMock(Class<T> role, String hint, T componentMock)
       throws ComponentRepositoryException {
-    DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<T>();
+    DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<>();
     descriptor.setRole(role);
     descriptor.setRoleHint(hint);
     Utils.getComponentManager().registerComponent(descriptor, componentMock);
