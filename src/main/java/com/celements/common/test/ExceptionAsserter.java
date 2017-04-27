@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
  *
  * @param <T>
  */
-public abstract class ExceptionAsserter<T extends Exception> {
+public abstract class ExceptionAsserter<T extends Exception> implements Asserter<T> {
 
   private final Class<T> token;
   private final T expected;
@@ -38,6 +38,7 @@ public abstract class ExceptionAsserter<T extends Exception> {
     this.message = message;
   }
 
+  @Override
   public @NotNull T evaluate() {
     try {
       execute();
