@@ -42,6 +42,9 @@ public abstract class AbstractComponentTest extends AbstractComponentTestCase {
     // without the context.
     Utils.setComponentManager(getComponentManager());
 
+    // initialize celements configuration source
+    getCelConfigSource();
+
     // initialize context and wiki mock
     getWikiMock();
   }

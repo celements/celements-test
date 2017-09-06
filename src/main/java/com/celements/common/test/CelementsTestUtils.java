@@ -33,6 +33,7 @@ import com.xpn.xwiki.web.XWikiMessageTool;
 
 public class CelementsTestUtils {
 
+  public static final String CELEMENTS_CONFIGURATION_SRC_KEY = "CELEMENTS_CONFIGURATION_SRC_celementsproperties";
   public static final String EXECUTIONCONTEXT_KEY_MOCKS = "default_mocks";
   public static final String DEFAULT_DB = "xwikidb";
   public static final String DEFAULT_MAIN_WIKI = "xwikiWiki";
@@ -74,6 +75,23 @@ public class CelementsTestUtils {
       }
     }
     return mock;
+  }
+
+  public static ConfigurationSource getCelConfigSource() {
+    ConfigurationSource srcConfigMock = (ConfigurationSource) getExecutionContext().getProperty(
+        CELEMENTS_CONFIGURATION_SRC_KEY);
+    if (srcConfigMock == null) {
+      try {
+        srcConfigMock = createMockAndAddToDefault(ConfigurationSource.class);
+        registerComponentMock(ConfigurationSource.class, "celementsproperties", srcConfigMock);
+        getExecutionContext().setProperty(CELEMENTS_CONFIGURATION_SRC_KEY, srcConfigMock);
+      } catch (ComponentRepositoryException crExp) {
+        srcConfigMock = null;
+        throw new IllegalStateException("Failed to initialize celements configuration source mock",
+            crExp);
+      }
+    }
+    return srcConfigMock;
   }
 
   public static XWiki getWikiMock() {
