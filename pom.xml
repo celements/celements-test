@@ -30,13 +30,13 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>celements-shared-tests</artifactId>
-	<version>1.15</version>
+	<version>1.16-SNAPSHOT</version>
 	<description>Celements Shared Tests</description>
   <scm>
     <connection>scm:git:git@github.com:celements/celements-shared-tests.git</connection>
     <developerConnection>scm:git:git@github.com:celements/celements-shared-tests.git</developerConnection>
     <url>https://github.com/celements/celements-shared-tests</url>
-    <tag>celements-shared-tests-1.15</tag>
+    <tag>celements-shared-tests-1.6</tag>
   </scm>
 	<dependencies>
 		<!-- Add here all your dependencies -->
