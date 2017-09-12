@@ -12,7 +12,6 @@ import org.apache.velocity.VelocityContext;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.xwiki.component.descriptor.DefaultComponentDescriptor;
-import org.xwiki.component.manager.ComponentLookupException;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.component.manager.ComponentRepositoryException;
 import org.xwiki.configuration.ConfigurationSource;
@@ -79,45 +78,15 @@ public class CelementsTestUtils {
     return mock;
   }
 
-  public static void activateCelConfigSource(ConfigurationSource srcConfig) {
-    // backup original source if not already happened.
-    getCelConfigSourceOriginal();
-    // ensure general mock is initialized.
-    getCelConfigSourceMock();
-    Utils.getComponentManager().unregisterComponent(ConfigurationSource.class,
-        "celementsproperties");
+  public static <T> T initComponentMock(Class<T> mockComponentClass, String mockHint) {
+    T mockObj = createMockAndAddToDefault(mockComponentClass);
     try {
-      registerComponentMock(ConfigurationSource.class, "celementsproperties", srcConfig);
+      registerComponentMock(mockComponentClass, mockHint, mockObj);
     } catch (ComponentRepositoryException crExp) {
-      throw new IllegalStateException("Failed to initialize celements configuration source mock",
-          crExp);
+      throw new IllegalStateException("Failed to initialize mock for class '"
+          + mockComponentClass.getName() + "'", crExp);
     }
-  }
-
-  public static ConfigurationSource getCelConfigSourceOriginal() {
-    ConfigurationSource srcConfigOrig = (ConfigurationSource) getExecutionContext().getProperty(
-        CELEMENTS_CONFIGURATION_SRC_ORIG_KEY);
-    if (srcConfigOrig == null) {
-      try {
-        srcConfigOrig = Utils.getComponentManager().lookup(ConfigurationSource.class,
-            "celementsproperties");
-      } catch (ComponentLookupException clExp) {
-        // no original config source found -> mocking original config source too.
-        srcConfigOrig = createMockAndAddToDefault(ConfigurationSource.class);
-      }
-      getExecutionContext().setProperty(CELEMENTS_CONFIGURATION_SRC_ORIG_KEY, srcConfigOrig);
-    }
-    return srcConfigOrig;
-  }
-
-  public static ConfigurationSource getCelConfigSourceMock() {
-    ConfigurationSource srcConfigMock = (ConfigurationSource) getExecutionContext().getProperty(
-        CELEMENTS_CONFIGURATION_SRC_MOCK_KEY);
-    if (srcConfigMock == null) {
-      srcConfigMock = createMockAndAddToDefault(ConfigurationSource.class);
-      getExecutionContext().setProperty(CELEMENTS_CONFIGURATION_SRC_MOCK_KEY, srcConfigMock);
-    }
-    return srcConfigMock;
+    return mockObj;
   }
 
   public static XWiki getWikiMock() {

@@ -21,8 +21,15 @@ package com.celements.common.test;
 
 import static com.celements.common.test.CelementsTestUtils.*;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
+import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.test.AbstractComponentTestCase;
 
 import com.xpn.xwiki.web.Utils;
@@ -42,8 +49,24 @@ public abstract class AbstractComponentTest extends AbstractComponentTestCase {
     // without the context.
     Utils.setComponentManager(getComponentManager());
 
+    List<HintedComponent> componentList = Collections.emptyList();
+    if (this.getClass().isAnnotationPresent(ComponentList.class)) {
+      componentList = Arrays.asList(this.getClass().getAnnotation(ComponentList.class).value());
+    }
+    Map<Class<?>, List<String>> componentClassMap = new HashMap<>();
+    for (HintedComponent hc : componentList) {
+      if (componentClassMap.containsKey(hc.clazz())) {
+        componentClassMap.get(hc.clazz()).add(hc.hint());
+      } else {
+        componentClassMap.put(hc.clazz(), Arrays.asList(hc.hint()));
+      }
+    }
+
     // initialize celements configuration source mock
-    activateCelConfigSource(getCelConfigSourceMock());
+    if (!(componentClassMap.containsKey(ConfigurationSource.class) && componentClassMap.get(
+        ConfigurationSource.class).contains("celementsproperties"))) {
+      initComponentMock(ConfigurationSource.class, "celementsproperties");
+    }
 
     // initialize context and wiki mock
     getWikiMock();
