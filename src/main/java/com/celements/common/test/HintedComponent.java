@@ -7,14 +7,12 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.xwiki.configuration.ConfigurationSource;
-
 @Documented
 @Retention(RUNTIME)
 @Target({ ANNOTATION_TYPE })
 public @interface HintedComponent {
 
-  Class<ConfigurationSource> clazz();
+  Class<?> clazz();
 
   String hint();
 
