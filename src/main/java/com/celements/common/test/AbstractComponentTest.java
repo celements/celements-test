@@ -21,6 +21,7 @@ package com.celements.common.test;
 
 import static com.celements.common.test.CelementsTestUtils.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,11 +56,10 @@ public abstract class AbstractComponentTest extends AbstractComponentTestCase {
     }
     Map<Class<?>, List<String>> componentClassMap = new HashMap<>();
     for (HintedComponent hc : componentList) {
-      if (componentClassMap.containsKey(hc.clazz())) {
-        componentClassMap.get(hc.clazz()).add(hc.hint());
-      } else {
-        componentClassMap.put(hc.clazz(), Arrays.asList(hc.hint()));
+      if (!componentClassMap.containsKey(hc.clazz())) {
+        componentClassMap.put(hc.clazz(), new ArrayList<String>());
       }
+      componentClassMap.get(hc.clazz()).add(hc.hint());
     }
 
     // initialize celements configuration source mock
