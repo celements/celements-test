@@ -26,11 +26,11 @@
 	<parent>
 		<groupId>com.celements</groupId>
 		<artifactId>base-pom</artifactId>
-		<version>2.15</version>
+		<version>5.2-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>celements-shared-tests</artifactId>
-	<version>1.17-SNAPSHOT</version>
+	<version>5.0-SNAPSHOT</version>
 	<description>Celements Shared Tests</description>
   <scm>
     <connection>scm:git:git@github.com:celements/celements-shared-tests.git</connection>
