@@ -35,7 +35,7 @@
   <scm>
     <connection>scm:git:git@github.com:celements/celements-shared-tests.git</connection>
     <developerConnection>scm:git:git@github.com:celements/celements-shared-tests.git</developerConnection>
-    <url>https://github.com/celements/celements-shared-tests</url>
+    <url>https://github.com/celements/celements-shared-tests/celements-common-test</url>
     <tag>celements-shared-tests-1.6</tag>
   </scm>
 	<dependencies>
