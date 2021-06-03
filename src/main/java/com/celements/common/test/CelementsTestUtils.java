@@ -153,15 +153,6 @@ public class CelementsTestUtils {
     return docMock;
   }
 
-  /**
-   * @deprecated instead use expectNewBaseObject(DocumentReference)
-   */
-  @Deprecated
-  public static BaseClass expectNewBaseObject(AbstractBridgedComponentTestCase testCase,
-      final DocumentReference classRef) throws XWikiException {
-    return expectNewBaseObject(classRef);
-  }
-
   public static BaseClass expectNewBaseObject(final DocumentReference classRef)
       throws XWikiException {
     BaseClass bClass = createBaseClassMock(classRef);
@@ -175,15 +166,6 @@ public class CelementsTestUtils {
       }
     }).anyTimes();
     return bClass;
-  }
-
-  /**
-   * @deprecated instead use expectPropertyClass(DocumentReference, String, PropertyClass)
-   */
-  @Deprecated
-  public static BaseClass expectPropertyClass(AbstractBridgedComponentTestCase testCase,
-      DocumentReference classRef, String fieldName, PropertyClass propClass) throws XWikiException {
-    return expectPropertyClass(classRef, fieldName, propClass);
   }
 
   public static BaseClass expectPropertyClass(DocumentReference classRef, String fieldName,
@@ -212,15 +194,6 @@ public class CelementsTestUtils {
       expectPropertyClass(bClass, fieldName, fieldMap.get(fieldName));
     }
     return bClass;
-  }
-
-  /**
-   * @deprecated instead use createBaseClassMock(DocumentReference)
-   */
-  @Deprecated
-  public static BaseClass createBaseClassMock(AbstractBridgedComponentTestCase testCase,
-      DocumentReference classRef) throws XWikiException {
-    return createBaseClassMock(classRef);
   }
 
   public static BaseClass createBaseClassMock(DocumentReference classRef) throws XWikiException {
