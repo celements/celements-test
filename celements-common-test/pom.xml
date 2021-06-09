@@ -22,23 +22,25 @@
  *
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<parent>
-		<groupId>com.celements</groupId>
-		<artifactId>base-pom</artifactId>
-		<version>5.2-SNAPSHOT</version>
-	</parent>
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>celements-shared-tests</artifactId>
-	<version>5.0-SNAPSHOT</version>
-	<description>Celements Shared Tests</description>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>com.celements</groupId>
+    <artifactId>base-pom</artifactId>
+    <version>5.2-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>celements-shared-tests</artifactId>
+  <version>5.0-SNAPSHOT</version>
+  <description>Celements Shared Tests</description>
   <scm>
     <connection>scm:git:git@github.com:celements/celements-shared-tests.git</connection>
     <developerConnection>scm:git:git@github.com:celements/celements-shared-tests.git</developerConnection>
     <url>https://github.com/celements/celements-shared-tests/celements-common-test</url>
     <tag>celements-shared-tests-1.6</tag>
   </scm>
-	<dependencies>
+  <dependencies>
 		<!-- Add here all your dependencies -->
     <dependency>
       <groupId>com.celements</groupId>
@@ -134,7 +136,7 @@
     </dependency>
 
     <!-- Commons -->
-     <dependency>
+    <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
       <version>2.0.1.Final</version>
@@ -159,24 +161,24 @@
       indirectly use it
     -->
     <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-1.2-api</artifactId>
-        <scope>runtime</scope>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-1.2-api</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-api</artifactId>
-        <scope>runtime</scope>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <scope>runtime</scope>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-slf4j-impl</artifactId>
-        <scope>runtime</scope>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -205,7 +207,7 @@
       <version>0.9.5</version>
     </dependency>
   </dependencies>
-   <build>
+  <build>
     <pluginManagement>
       <plugins>
         <plugin>
