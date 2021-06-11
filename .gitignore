@@ -1,6 +1,6 @@
-/target
-/.classpath
-/.project
-/.settings
-/xwiki.log
-/build
+**/target
+**/.classpath
+**/.project
+**/.settings
+**/xwiki.log
+**/build
