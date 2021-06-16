@@ -41,6 +41,12 @@
     <!-- Add here all your dependencies -->
     <dependency>
       <groupId>com.celements</groupId>
+      <artifactId>celements-component</artifactId>
+      <version>5.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.celements</groupId>
       <artifactId>celements-shared-tests</artifactId>
       <version>5.0-SNAPSHOT</version>
     </dependency>
