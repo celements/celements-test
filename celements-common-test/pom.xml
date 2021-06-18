@@ -41,6 +41,12 @@
     <!-- Add here all your dependencies -->
     <dependency>
       <groupId>com.celements</groupId>
+      <artifactId>celements-component</artifactId>
+      <version>5.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.celements</groupId>
       <artifactId>celements-xwiki-core</artifactId>
       <version>5.2-SNAPSHOT</version>
       <scope>provided</scope>
@@ -60,6 +66,10 @@
         <exclusion>
           <groupId>log4j</groupId>
           <artifactId>log4j</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
         </exclusion>
         <exclusion>
           <groupId>junit</groupId>
