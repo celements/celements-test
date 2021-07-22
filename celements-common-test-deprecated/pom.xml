@@ -127,7 +127,6 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate</artifactId>
-      <version>3.2.6.ga</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
