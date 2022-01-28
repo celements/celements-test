@@ -12,7 +12,9 @@ import javax.validation.constraints.NotNull;
  * {@link #evaluate()}.
  *
  * @param <T>
+ * @deprecated since 5.4, instead use {@link org.junit.Assert#assertThrows}
  */
+@Deprecated
 public abstract class ExceptionAsserter<T extends Exception> implements Asserter<T> {
 
   private final Class<T> token;
