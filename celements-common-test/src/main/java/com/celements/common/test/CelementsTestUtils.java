@@ -26,12 +26,13 @@ import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.BaseClass;
+import com.xpn.xwiki.objects.classes.ListClass;
 import com.xpn.xwiki.objects.classes.PropertyClass;
 import com.xpn.xwiki.store.XWikiStoreInterface;
 import com.xpn.xwiki.web.Utils;
 import com.xpn.xwiki.web.XWikiMessageTool;
 
-public class CelementsTestUtils {
+public final class CelementsTestUtils {
 
   public static final String CELEMENTS_CONFIGURATION_SRC_MOCK_KEY = "CELEMENTS_CONFIGURATION_SRC_MOCK_celementsproperties";
   public static final String CELEMENTS_CONFIGURATION_SRC_ORIG_KEY = "CELEMENTS_CONFIGURATION_SRC_ORIG_celementsproperties";
@@ -45,6 +46,8 @@ public class CelementsTestUtils {
   private static ExecutionContext getExecutionContext() {
     return Utils.getComponent(Execution.class).getContext();
   }
+
+  private CelementsTestUtils() {}
 
   @SuppressWarnings("unchecked")
   public static Collection<Object> getDefaultMocks() {
@@ -193,6 +196,12 @@ public class CelementsTestUtils {
     for (String fieldName : fieldMap.keySet()) {
       expectPropertyClass(bClass, fieldName, fieldMap.get(fieldName));
     }
+    return bClass;
+  }
+
+  public static BaseClass adjustDefaultListSeparator(final BaseClass bClass,
+      final String fieldName) {
+    ((ListClass) bClass.get(fieldName)).setSeparators("|");
     return bClass;
   }
 
