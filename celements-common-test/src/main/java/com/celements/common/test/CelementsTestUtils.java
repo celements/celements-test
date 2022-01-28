@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ResourceBundle;
 
 import javax.validation.constraints.NotEmpty;
@@ -198,23 +199,23 @@ public final class CelementsTestUtils {
 
   public static BaseClass expectPropertyClasses(BaseClass bClass,
       Map<String, PropertyClass> fieldMap) {
-    for (String fieldName : fieldMap.keySet()) {
-      expectPropertyClass(bClass, fieldName, fieldMap.get(fieldName));
+    for (Entry<String, PropertyClass> fieldEntry : fieldMap.entrySet()) {
+      expectPropertyClass(bClass, fieldEntry.getKey(), fieldEntry.getValue());
     }
     return bClass;
   }
 
-  public static @NotNull BaseClass adjustDefaultListSeparator(@NotNull final BaseClass bClass,
-      @NotEmpty final String fieldName) {
+  public static @NotNull BaseClass adjustDefaultListSeparator(@NotNull BaseClass bClass,
+      @NotEmpty String fieldName) {
     return adjustListSeparator(bClass, fieldName, "|");
   }
 
-  public static final @NotNull BaseClass adjustListSeparator(@NotNull final BaseClass bClass,
-      @NotEmpty final String fieldName, @NotEmpty final String newSeparator) {
+  public static @NotNull BaseClass adjustListSeparator(@NotNull BaseClass bClass,
+      @NotEmpty String fieldName, @NotEmpty String separator) {
     checkNotNull(bClass);
     checkArgument(!Strings.isNullOrEmpty(fieldName));
-    checkArgument(!Strings.isNullOrEmpty(newSeparator));
-    ((ListClass) bClass.get(fieldName)).setSeparators(newSeparator);
+    checkArgument(!Strings.isNullOrEmpty(separator));
+    ((ListClass) bClass.get(fieldName)).setSeparators(separator);
     return bClass;
   }
 
