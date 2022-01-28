@@ -1,12 +1,17 @@
 package com.celements.common.test;
 
+import static com.google.common.base.Preconditions.*;
 import static org.easymock.EasyMock.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ResourceBundle;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import org.apache.velocity.VelocityContext;
 import org.easymock.EasyMock;
@@ -20,18 +25,20 @@ import org.xwiki.context.ExecutionContext;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.test.MockConfigurationSource;
 
+import com.google.common.base.Strings;
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.objects.classes.BaseClass;
+import com.xpn.xwiki.objects.classes.ListClass;
 import com.xpn.xwiki.objects.classes.PropertyClass;
 import com.xpn.xwiki.store.XWikiStoreInterface;
 import com.xpn.xwiki.web.Utils;
 import com.xpn.xwiki.web.XWikiMessageTool;
 
-public class CelementsTestUtils {
+public final class CelementsTestUtils {
 
   public static final String CELEMENTS_CONFIGURATION_SRC_MOCK_KEY = "CELEMENTS_CONFIGURATION_SRC_MOCK_celementsproperties";
   public static final String CELEMENTS_CONFIGURATION_SRC_ORIG_KEY = "CELEMENTS_CONFIGURATION_SRC_ORIG_celementsproperties";
@@ -45,6 +52,8 @@ public class CelementsTestUtils {
   private static ExecutionContext getExecutionContext() {
     return Utils.getComponent(Execution.class).getContext();
   }
+
+  private CelementsTestUtils() {}
 
   @SuppressWarnings("unchecked")
   public static Collection<Object> getDefaultMocks() {
@@ -190,9 +199,23 @@ public class CelementsTestUtils {
 
   public static BaseClass expectPropertyClasses(BaseClass bClass,
       Map<String, PropertyClass> fieldMap) {
-    for (String fieldName : fieldMap.keySet()) {
-      expectPropertyClass(bClass, fieldName, fieldMap.get(fieldName));
+    for (Entry<String, PropertyClass> fieldEntry : fieldMap.entrySet()) {
+      expectPropertyClass(bClass, fieldEntry.getKey(), fieldEntry.getValue());
     }
+    return bClass;
+  }
+
+  public static @NotNull BaseClass adjustDefaultListSeparator(@NotNull BaseClass bClass,
+      @NotEmpty String fieldName) {
+    return adjustListSeparator(bClass, fieldName, "|");
+  }
+
+  public static @NotNull BaseClass adjustListSeparator(@NotNull BaseClass bClass,
+      @NotEmpty String fieldName, @NotEmpty String separator) {
+    checkNotNull(bClass);
+    checkArgument(!Strings.isNullOrEmpty(fieldName));
+    checkArgument(!Strings.isNullOrEmpty(separator));
+    ((ListClass) bClass.get(fieldName)).setSeparators(separator);
     return bClass;
   }
 
