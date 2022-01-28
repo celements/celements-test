@@ -1,5 +1,6 @@
 package com.celements.common.test;
 
+import static com.google.common.base.Preconditions.*;
 import static org.easymock.EasyMock.*;
 
 import java.util.ArrayList;
@@ -7,6 +8,9 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import org.apache.velocity.VelocityContext;
 import org.easymock.EasyMock;
@@ -20,6 +24,7 @@ import org.xwiki.context.ExecutionContext;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.test.MockConfigurationSource;
 
+import com.google.common.base.Strings;
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
@@ -199,9 +204,17 @@ public final class CelementsTestUtils {
     return bClass;
   }
 
-  public static BaseClass adjustDefaultListSeparator(final BaseClass bClass,
-      final String fieldName) {
-    ((ListClass) bClass.get(fieldName)).setSeparators("|");
+  public static @NotNull BaseClass adjustDefaultListSeparator(@NotNull final BaseClass bClass,
+      @NotEmpty final String fieldName) {
+    return adjustListSeparator(bClass, fieldName, "|");
+  }
+
+  public static final @NotNull BaseClass adjustListSeparator(@NotNull final BaseClass bClass,
+      @NotEmpty final String fieldName, @NotEmpty final String newSeparator) {
+    checkNotNull(bClass);
+    checkArgument(!Strings.isNullOrEmpty(fieldName));
+    checkArgument(!Strings.isNullOrEmpty(newSeparator));
+    ((ListClass) bClass.get(fieldName)).setSeparators(newSeparator);
     return bClass;
   }
 
