@@ -46,6 +46,18 @@
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
+      <artifactId>celements-config-source-api</artifactId>
+      <version>5.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.celements</groupId>
+      <artifactId>celements-reference</artifactId>
+      <version>5.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.celements</groupId>
       <artifactId>celements-xwiki-core</artifactId>
       <version>5.4</version>
       <scope>provided</scope>

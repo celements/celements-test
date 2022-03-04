@@ -46,7 +46,13 @@
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
-      <artifactId>celements-configuration-api</artifactId>
+      <artifactId>celements-config-source-api</artifactId>
+      <version>5.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.celements</groupId>
+      <artifactId>celements-reference</artifactId>
       <version>5.0</version>
       <scope>provided</scope>
     </dependency>
