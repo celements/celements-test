@@ -21,63 +21,59 @@ package com.celements.common.test;
 
 import static com.celements.common.test.CelementsTestUtils.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.After;
 import org.junit.Before;
 import org.xwiki.configuration.ConfigurationSource;
-import org.xwiki.test.AbstractComponentTestCase;
+import org.xwiki.context.Execution;
+import org.xwiki.context.ExecutionContext;
+import org.xwiki.context.ExecutionContextManager;
+import org.xwiki.test.MockConfigurationSource;
 
 import com.xpn.xwiki.web.Utils;
 
 /**
- * Extension of {@link org.xwiki.test.AbstractComponentTestCase} which can be used
- * together with {@link CelementsTestUtils}
+ * Extension of {@link AbstractBaseComponentTest} which prepares the {@link ExecutionContext} and
+ * {@link MockConfigurationSource} and can be used together with {@link CelementsTestUtils}
  */
-public abstract class AbstractComponentTest extends AbstractComponentTestCase {
+public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
 
   @Before
   @Override
   public void setUp() throws Exception {
     super.setUp();
-
-    // Statically store the component manager in {@link Utils} to be able to access it
-    // without the context.
+    ExecutionContext execCtx = new ExecutionContext();
+    springCtx.getBean(Execution.class).setContext(execCtx);
+    springCtx.getBean(ExecutionContextManager.class).initialize(execCtx);
     Utils.setComponentManager(getComponentManager());
-
-    List<HintedComponent> componentList = Collections.emptyList();
-    if (this.getClass().isAnnotationPresent(ComponentList.class)) {
-      componentList = Arrays.asList(this.getClass().getAnnotation(ComponentList.class).value());
-    }
-    Map<Class<?>, List<String>> componentClassMap = new HashMap<>();
-    for (HintedComponent hc : componentList) {
-      if (!componentClassMap.containsKey(hc.clazz())) {
-        componentClassMap.put(hc.clazz(), new ArrayList<String>());
-      }
-      componentClassMap.get(hc.clazz()).add(hc.hint());
-    }
-
-    // initialize celements configuration source mock
-    if (!(componentClassMap.containsKey(ConfigurationSource.class) && componentClassMap.get(
-        ConfigurationSource.class).contains("celementsproperties"))) {
-      initComponentMock(ConfigurationSource.class, "celementsproperties");
-    }
-
-    // initialize context and wiki mock
     getWikiMock();
   }
 
-  @After
   @Override
+  protected void registerComponents() throws Exception {
+    MockConfigurationSource cfgSrc = new MockConfigurationSource();
+    registerComponentMock(ConfigurationSource.class, "default", cfgSrc);
+    registerComponentMock(ConfigurationSource.class, "all", getConfigurationSource());
+    registerComponentMock(ConfigurationSource.class, "wiki", getConfigurationSource());
+    registerComponentMock(ConfigurationSource.class, "fromwiki", getConfigurationSource());
+    registerComponentMock(ConfigurationSource.class, "allproperties", getConfigurationSource());
+    registerComponentMock(ConfigurationSource.class, "xwikiproperties", cfgSrc);
+    registerComponentMock(ConfigurationSource.class, "celementsproperties", cfgSrc);
+    for (HintedComponent hc : this.getClass().getAnnotation(ComponentList.class).value()) {
+      registerComponentMock(hc.clazz(), hc.hint());
+    }
+  }
+
+  @Override
+  @After
   public void tearDown() throws Exception {
-    getDefaultMocks().clear();
+    springCtx.getBean(Execution.class).removeContext();
     Utils.setComponentManager(null);
+    getDefaultMocks().clear();
     super.tearDown();
+  }
+
+  public MockConfigurationSource getConfigurationSource() {
+    return springCtx.getBean(MockConfigurationSource.class);
   }
 
 }

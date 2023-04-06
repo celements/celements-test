@@ -14,8 +14,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import org.apache.velocity.VelocityContext;
-import org.easymock.EasyMock;
-import org.easymock.IAnswer;
+import org.xwiki.component.descriptor.ComponentRole;
 import org.xwiki.component.descriptor.DefaultComponentDescriptor;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.component.manager.ComponentRepositoryException;
@@ -46,8 +45,6 @@ public final class CelementsTestUtils {
   public static final String DEFAULT_DB = "xwikidb";
   public static final String DEFAULT_MAIN_WIKI = "xwikiWiki";
   public static final String DEFAULT_LANG = "de";
-
-  public static EasyMock easyMock;
 
   private static ExecutionContext getExecutionContext() {
     return Utils.getComponent(Execution.class).getContext();
@@ -85,17 +82,6 @@ public final class CelementsTestUtils {
       }
     }
     return mock;
-  }
-
-  public static <T> T initComponentMock(Class<T> mockComponentClass, String mockHint) {
-    T mockObj = createMockAndAddToDefault(mockComponentClass);
-    try {
-      registerComponentMock(mockComponentClass, mockHint, mockObj);
-    } catch (ComponentRepositoryException crExp) {
-      throw new IllegalStateException("Failed to initialize mock for class '"
-          + mockComponentClass.getName() + "'", crExp);
-    }
-    return mockObj;
   }
 
   public static XWiki getWikiMock() {
@@ -165,14 +151,10 @@ public final class CelementsTestUtils {
   public static BaseClass expectNewBaseObject(final DocumentReference classRef)
       throws XWikiException {
     BaseClass bClass = createBaseClassMock(classRef);
-    expect(bClass.newCustomClassInstance(same(getContext()))).andAnswer(new IAnswer<BaseObject>() {
-
-      @Override
-      public BaseObject answer() throws Throwable {
-        BaseObject bObj = new BaseObject();
-        bObj.setXClassReference(classRef);
-        return bObj;
-      }
+    expect(bClass.newCustomClassInstance(same(getContext()))).andAnswer(() -> {
+      BaseObject bObj = new BaseObject();
+      bObj.setXClassReference(classRef);
+      return bObj;
     }).anyTimes();
     return bClass;
   }
@@ -238,7 +220,7 @@ public final class CelementsTestUtils {
   }
 
   public static <T> T registerComponentMock(Class<T> role) throws ComponentRepositoryException {
-    return registerComponentMock(role, "default");
+    return registerComponentMock(role, ComponentRole.DEFAULT_HINT);
   }
 
   public static <T> T registerComponentMock(Class<T> role, String hint)
