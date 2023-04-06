@@ -42,7 +42,6 @@ public abstract class AbstractBaseComponentTest {
   @Before
   public void setUp() throws Exception {
     this.springCtx = new CelSpringContext(getAdditionalSpringConfigs());
-    registerComponents();
     springCtx.getBean(Container.class)
         .setApplicationContext(new TestXWikiApplicationContext());
   }
@@ -53,11 +52,6 @@ public abstract class AbstractBaseComponentTest {
   protected List<Class<?>> getAdditionalSpringConfigs() {
     return ImmutableList.of();
   }
-
-  /**
-   * Register custom/mock components
-   */
-  protected void registerComponents() throws Exception {}
 
   @After
   public void tearDown() throws Exception {

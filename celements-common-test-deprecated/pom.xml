@@ -37,7 +37,12 @@
     <tag>HEAD</tag>
   </scm>
   <dependencies>
-    <!-- Add here all your dependencies -->
+    <dependency>
+      <groupId>com.celements</groupId>
+      <artifactId>celements-commons</artifactId>
+      <version>5.0</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-component</artifactId>
