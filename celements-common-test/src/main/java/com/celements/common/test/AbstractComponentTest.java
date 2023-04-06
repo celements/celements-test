@@ -21,8 +21,12 @@ package com.celements.common.test;
 
 import static com.celements.common.test.CelementsTestUtils.*;
 
+import java.util.Arrays;
+
 import org.junit.After;
 import org.junit.Before;
+import org.xwiki.component.descriptor.DefaultComponentDescriptor;
+import org.xwiki.component.manager.ComponentRepositoryException;
 import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
@@ -41,34 +45,32 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   @Override
   public void setUp() throws Exception {
     super.setUp();
+    Utils.setComponentManager(getComponentManager());
+    registerMockConfigSource();
     ExecutionContext execCtx = new ExecutionContext();
     springCtx.getBean(Execution.class).setContext(execCtx);
     springCtx.getBean(ExecutionContextManager.class).initialize(execCtx);
-    Utils.setComponentManager(getComponentManager());
     getWikiMock();
   }
 
-  @Override
-  protected void registerComponents() throws Exception {
+  private void registerMockConfigSource() throws ComponentRepositoryException {
     MockConfigurationSource cfgSrc = new MockConfigurationSource();
-    registerComponentMock(ConfigurationSource.class, "default", cfgSrc);
-    registerComponentMock(ConfigurationSource.class, "all", getConfigurationSource());
-    registerComponentMock(ConfigurationSource.class, "wiki", getConfigurationSource());
-    registerComponentMock(ConfigurationSource.class, "fromwiki", getConfigurationSource());
-    registerComponentMock(ConfigurationSource.class, "allproperties", getConfigurationSource());
-    registerComponentMock(ConfigurationSource.class, "xwikiproperties", cfgSrc);
-    registerComponentMock(ConfigurationSource.class, "celementsproperties", cfgSrc);
-    for (HintedComponent hc : this.getClass().getAnnotation(ComponentList.class).value()) {
-      registerComponentMock(hc.clazz(), hc.hint());
+    DefaultComponentDescriptor<ConfigurationSource> descriptor = new DefaultComponentDescriptor<>();
+    descriptor.setRole(ConfigurationSource.class);
+    descriptor.setImplementation(MockConfigurationSource.class);
+    for (String hint : Arrays.asList("default", "all", "wiki", "fromwiki", "allproperties",
+        "xwikiproperties", "celementsproperties")) {
+      descriptor.setRoleHint(hint);
+      getComponentManager().registerComponent(descriptor, cfgSrc);
     }
   }
 
   @Override
   @After
   public void tearDown() throws Exception {
+    getDefaultMocks().clear();
     springCtx.getBean(Execution.class).removeContext();
     Utils.setComponentManager(null);
-    getDefaultMocks().clear();
     super.tearDown();
   }
 

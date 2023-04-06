@@ -228,11 +228,15 @@ public final class CelementsTestUtils {
     return registerComponentMock(role, hint, createMockAndAddToDefault(role));
   }
 
+  @SuppressWarnings("unchecked")
   public static <T> T registerComponentMock(Class<T> role, String hint, T componentMock)
       throws ComponentRepositoryException {
     DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<>();
     descriptor.setRole(role);
     descriptor.setRoleHint(hint);
+    if (componentMock != null) {
+      descriptor.setImplementation((Class<T>) componentMock.getClass());
+    }
     Utils.getComponentManager().registerComponent(descriptor, componentMock);
     return componentMock;
   }
