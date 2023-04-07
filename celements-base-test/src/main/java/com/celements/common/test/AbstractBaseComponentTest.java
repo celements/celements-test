@@ -55,6 +55,7 @@ public abstract class AbstractBaseComponentTest {
 
   @After
   public void tearDown() throws Exception {
+    springCtx.close();
     this.springCtx = null;
   }
 

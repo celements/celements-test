@@ -21,7 +21,7 @@ package com.celements.common.test;
 
 import static com.celements.common.test.CelementsTestUtils.*;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -33,6 +33,7 @@ import org.xwiki.context.ExecutionContext;
 import org.xwiki.context.ExecutionContextManager;
 import org.xwiki.test.MockConfigurationSource;
 
+import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.web.Utils;
 
 /**
@@ -53,16 +54,20 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     getWikiMock();
   }
 
-  private void registerMockConfigSource() throws ComponentRepositoryException {
+  protected void registerMockConfigSource() throws ComponentRepositoryException {
     MockConfigurationSource cfgSrc = new MockConfigurationSource();
     DefaultComponentDescriptor<ConfigurationSource> descriptor = new DefaultComponentDescriptor<>();
     descriptor.setRole(ConfigurationSource.class);
     descriptor.setImplementation(MockConfigurationSource.class);
-    for (String hint : Arrays.asList("default", "all", "wiki", "fromwiki", "allproperties",
-        "xwikiproperties", "celementsproperties")) {
+    for (String hint : getConfigSourceHints()) {
       descriptor.setRoleHint(hint);
       getComponentManager().registerComponent(descriptor, cfgSrc);
     }
+  }
+
+  protected List<String> getConfigSourceHints() {
+    return ImmutableList.of("default", "all", "wiki", "fromwiki", "allproperties",
+        "xwikiproperties", "celementsproperties");
   }
 
   @Override
