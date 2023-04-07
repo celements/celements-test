@@ -73,10 +73,13 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   @Override
   @After
   public void tearDown() throws Exception {
-    getDefaultMocks().clear();
-    springCtx.getBean(Execution.class).removeContext();
-    Utils.setComponentManager(null);
-    super.tearDown();
+    try {
+      getDefaultMocks().clear();
+      springCtx.getBean(Execution.class).removeContext();
+    } finally {
+      Utils.setComponentManager(null);
+      super.tearDown();
+    }
   }
 
   public MockConfigurationSource getConfigurationSource() {
