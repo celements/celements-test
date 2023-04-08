@@ -19,6 +19,8 @@
  */
 package com.celements.common.test;
 
+import static com.google.common.base.Preconditions.*;
+
 import java.io.File;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -27,6 +29,7 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.springframework.context.support.GenericApplicationContext;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.container.ApplicationContext;
 import org.xwiki.container.Container;
@@ -37,11 +40,12 @@ import com.google.common.collect.ImmutableList;
 
 public abstract class AbstractBaseComponentTest {
 
-  protected CelSpringContext springCtx;
+  private GenericApplicationContext springCtx;
 
   @Before
   public void setUp() throws Exception {
-    this.springCtx = new CelSpringContext(getAdditionalSpringConfigs());
+    checkState(springCtx == null);
+    springCtx = new CelSpringContext(getAdditionalSpringConfigs());
     springCtx.getBean(Container.class)
         .setApplicationContext(new TestXWikiApplicationContext());
   }
@@ -55,12 +59,17 @@ public abstract class AbstractBaseComponentTest {
 
   @After
   public void tearDown() throws Exception {
-    springCtx.close();
-    this.springCtx = null;
+    getSpringContext().close();
+    springCtx = null;
+  }
+
+  public GenericApplicationContext getSpringContext() {
+    checkState(springCtx != null);
+    return springCtx;
   }
 
   public ComponentManager getComponentManager() {
-    return springCtx.getBean(ComponentManager.class);
+    return getSpringContext().getBean(ComponentManager.class);
   }
 
   public static class TestXWikiApplicationContext implements ApplicationContext {

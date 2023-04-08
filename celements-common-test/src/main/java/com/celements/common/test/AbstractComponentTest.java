@@ -44,13 +44,13 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
 
   @Before
   @Override
-  public void setUp() throws Exception {
+  public final void setUp() throws Exception {
     super.setUp();
     Utils.setComponentManager(getComponentManager());
     registerMockConfigSource();
     ExecutionContext execCtx = new ExecutionContext();
-    springCtx.getBean(Execution.class).setContext(execCtx);
-    springCtx.getBean(ExecutionContextManager.class).initialize(execCtx);
+    getSpringContext().getBean(Execution.class).setContext(execCtx);
+    getSpringContext().getBean(ExecutionContextManager.class).initialize(execCtx);
     getWikiMock();
   }
 
@@ -70,12 +70,12 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
         "xwikiproperties", "celementsproperties");
   }
 
-  @Override
   @After
-  public void tearDown() throws Exception {
+  @Override
+  public final void tearDown() throws Exception {
     try {
       getDefaultMocks().clear();
-      springCtx.getBean(Execution.class).removeContext();
+      getSpringContext().getBean(Execution.class).removeContext();
     } finally {
       Utils.setComponentManager(null);
       super.tearDown();
@@ -83,7 +83,7 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   }
 
   public MockConfigurationSource getConfigurationSource() {
-    return springCtx.getBean(MockConfigurationSource.class);
+    return getSpringContext().getBean(MockConfigurationSource.class);
   }
 
 }
