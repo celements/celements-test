@@ -1,22 +1,3 @@
-/*
- * See the NOTICE file distributed with this work for additional
- * information regarding copyright ownership.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- */
 package com.celements.common.test;
 
 import static com.google.common.base.Preconditions.*;
@@ -28,10 +9,9 @@ import java.net.URL;
 import java.util.List;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.container.ApplicationContext;
 import org.xwiki.container.Container;
@@ -40,25 +20,18 @@ import com.celements.spring.CelSpringConfig;
 import com.celements.spring.context.CelSpringContext;
 import com.google.common.collect.ImmutableList;
 
-public abstract class AbstractBaseComponentTest {
+public abstract class AbstractBaseComponentTest extends AbstractJUnit4SpringContextTests {
 
-  private static GenericApplicationContext springCtx;
-
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    long t = System.currentTimeMillis();
-    springCtx = new CelSpringContext(ImmutableList.of());
-    System.err.println("CTXINIT: " + (System.currentTimeMillis() - t));
-    springCtx.getBean(Container.class)
-        .setApplicationContext(new TestXWikiApplicationContext());
-  }
+  private GenericApplicationContext springCtx;
 
   @Before
   public void setUp() throws Exception {
-    // checkState(springCtx == null);
-    // springCtx = new CelSpringContext(getAdditionalSpringConfigs());
-    // springCtx.getBean(Container.class)
-    // .setApplicationContext(new TestXWikiApplicationContext());
+    checkState(springCtx == null);
+    long t = System.currentTimeMillis();
+    springCtx = new CelSpringContext(getAdditionalSpringConfigs());
+    System.err.println("CTXINIT: " + (System.currentTimeMillis() - t));
+    springCtx.getBean(Container.class)
+        .setApplicationContext(new TestXWikiApplicationContext());
   }
 
   /**
@@ -70,14 +43,8 @@ public abstract class AbstractBaseComponentTest {
 
   @After
   public void tearDown() throws Exception {
-    // getSpringContext().close();
-    // springCtx = null;
-  }
-
-  @AfterClass
-  public static void tearDownClass() throws Exception {
     long t = System.currentTimeMillis();
-    springCtx.close();
+    getSpringContext().close();
     springCtx = null;
     System.err.println("CTXCLOSE: " + (System.currentTimeMillis() - t));
   }
