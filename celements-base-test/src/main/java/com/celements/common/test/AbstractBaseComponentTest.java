@@ -11,7 +11,6 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.container.ApplicationContext;
 import org.xwiki.container.Container;
@@ -20,7 +19,7 @@ import com.celements.spring.CelSpringConfig;
 import com.celements.spring.context.CelSpringContext;
 import com.google.common.collect.ImmutableList;
 
-public abstract class AbstractBaseComponentTest extends AbstractJUnit4SpringContextTests {
+public abstract class AbstractBaseComponentTest {
 
   private GenericApplicationContext springCtx;
 
