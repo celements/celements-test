@@ -28,7 +28,9 @@ import java.net.URL;
 import java.util.List;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.springframework.context.support.GenericApplicationContext;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.container.ApplicationContext;
@@ -40,14 +42,23 @@ import com.google.common.collect.ImmutableList;
 
 public abstract class AbstractBaseComponentTest {
 
-  private GenericApplicationContext springCtx;
+  private static GenericApplicationContext springCtx;
+
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    long t = System.currentTimeMillis();
+    springCtx = new CelSpringContext(ImmutableList.of());
+    System.err.println("CTXINIT: " + (System.currentTimeMillis() - t));
+    springCtx.getBean(Container.class)
+        .setApplicationContext(new TestXWikiApplicationContext());
+  }
 
   @Before
   public void setUp() throws Exception {
-    checkState(springCtx == null);
-    springCtx = new CelSpringContext(getAdditionalSpringConfigs());
-    springCtx.getBean(Container.class)
-        .setApplicationContext(new TestXWikiApplicationContext());
+    // checkState(springCtx == null);
+    // springCtx = new CelSpringContext(getAdditionalSpringConfigs());
+    // springCtx.getBean(Container.class)
+    // .setApplicationContext(new TestXWikiApplicationContext());
   }
 
   /**
@@ -59,8 +70,16 @@ public abstract class AbstractBaseComponentTest {
 
   @After
   public void tearDown() throws Exception {
-    getSpringContext().close();
+    // getSpringContext().close();
+    // springCtx = null;
+  }
+
+  @AfterClass
+  public static void tearDownClass() throws Exception {
+    long t = System.currentTimeMillis();
+    springCtx.close();
     springCtx = null;
+    System.err.println("CTXCLOSE: " + (System.currentTimeMillis() - t));
   }
 
   public GenericApplicationContext getSpringContext() {
