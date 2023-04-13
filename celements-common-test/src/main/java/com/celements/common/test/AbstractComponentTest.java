@@ -78,13 +78,13 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
       getDefaultMocks().forEach(EasyMock::reset);
       getDefaultMocks().clear();
       Execution exec = getSpringContext().getBean(Execution.class);
-      exec.removeContext();
-      XWikiContext context = (XWikiContext) exec.getContext().getProperty(
-          XWikiContext.EXECUTIONCONTEXT_KEY);
+      XWikiContext context = (XWikiContext) exec.getContext()
+          .getProperty(XWikiContext.EXECUTIONCONTEXT_KEY);
       if (context != null) {
         context.clear();
         context.setWiki(null);
       }
+      exec.removeContext();
     } finally {
       Utils.setComponentManager(null);
       super.tearDown();
