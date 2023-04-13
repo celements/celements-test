@@ -24,11 +24,11 @@
   <parent>
     <groupId>com.celements</groupId>
     <artifactId>base-pom</artifactId>
-    <version>5.11-SNAPSHOT</version>
+    <version>6.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>celements-shared-tests</artifactId>
-  <version>5.2-SNAPSHOT</version>
+  <version>6.0-SNAPSHOT</version>
   <description>Celements Shared Tests</description>
   <scm>
     <connection>scm:git:git@github.com:celements/celements-shared-tests.git</connection>
@@ -41,7 +41,7 @@
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-base-tests</artifactId>
-      <version>5.0-SNAPSHOT</version>
+      <version>6.0-SNAPSHOT</version>
     </dependency>
     
     <dependency>
@@ -53,7 +53,7 @@
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-component</artifactId>
-      <version>5.3-SNAPSHOT</version>
+      <version>6.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -71,7 +71,7 @@
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-servlet</artifactId>
-      <version>5.0-SNAPSHOT</version>
+      <version>6.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -82,7 +82,7 @@
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-xwiki-core</artifactId>
-      <version>5.9-SNAPSHOT</version>
+      <version>6.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

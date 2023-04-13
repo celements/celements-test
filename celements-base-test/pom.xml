@@ -24,11 +24,11 @@
   <parent>
     <groupId>com.celements</groupId>
     <artifactId>base-pom</artifactId>
-    <version>5.11-SNAPSHOT</version>
+    <version>6.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>celements-base-tests</artifactId>
-  <version>5.0-SNAPSHOT</version>
+  <version>6.0-SNAPSHOT</version>
   <description>Celements Base Tests</description>
   <scm>
     <connection>scm:git:git@github.com:celements/celements-shared-tests.git</connection>
@@ -37,23 +37,29 @@
     <tag>HEAD</tag>
   </scm>
   <dependencies>
-    <!-- Add here all your dependencies -->
+
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-component</artifactId>
-      <version>5.3-SNAPSHOT</version>
+      <version>6.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-servlet</artifactId>
-      <version>5.0-SNAPSHOT</version>
+      <version>6.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-core-bridge</artifactId>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>${spring.version}</version>
     </dependency>
 
     <!-- Storage -->
@@ -77,13 +83,6 @@
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
-    </dependency>
-
-    <!-- TODO: We should drop ECS -->
-    <dependency>
-      <groupId>ecs</groupId>
-      <artifactId>ecs</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <!-- Authentication -->
