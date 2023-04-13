@@ -23,6 +23,7 @@ import static com.celements.common.test.CelementsTestUtils.*;
 
 import java.util.List;
 
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.xwiki.component.descriptor.DefaultComponentDescriptor;
@@ -34,6 +35,7 @@ import org.xwiki.context.ExecutionContextManager;
 import org.xwiki.test.MockConfigurationSource;
 
 import com.google.common.collect.ImmutableList;
+import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.web.Utils;
 
 /**
@@ -51,7 +53,6 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     ExecutionContext execCtx = new ExecutionContext();
     getSpringContext().getBean(Execution.class).setContext(execCtx);
     getSpringContext().getBean(ExecutionContextManager.class).initialize(execCtx);
-    getWikiMock();
   }
 
   protected void registerMockConfigSource() throws ComponentRepositoryException {
@@ -74,8 +75,16 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   @Override
   public final void tearDown() throws Exception {
     try {
+      getDefaultMocks().forEach(EasyMock::reset);
       getDefaultMocks().clear();
-      getSpringContext().getBean(Execution.class).removeContext();
+      Execution exec = getSpringContext().getBean(Execution.class);
+      exec.removeContext();
+      XWikiContext context = (XWikiContext) exec.getContext().getProperty(
+          XWikiContext.EXECUTIONCONTEXT_KEY);
+      if (context != null) {
+        context.clear();
+        context.setWiki(null);
+      }
     } finally {
       Utils.setComponentManager(null);
       super.tearDown();

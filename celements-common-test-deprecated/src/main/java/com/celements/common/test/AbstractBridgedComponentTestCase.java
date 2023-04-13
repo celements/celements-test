@@ -30,11 +30,11 @@ import com.xpn.xwiki.XWikiContext;
  * Extension of {@link org.xwiki.test.AbstractComponentTestCase} that sets up a bridge
  * between the new Execution Context and the old XWikiContext. This allows code that uses
  * XWikiContext to be tested using this Test Case class.
- * 
+ *
  * @version: AbstractBridgedComponentTestCase.java fpichler copied from
  *           AbstractBridgedComponentTestCase.java
  * @deprecated instead use {@link AbstractComponentTest} together with static import
- * {@link CelementsTestUtils}
+ *             {@link CelementsTestUtils}
  */
 @Deprecated
 public abstract class AbstractBridgedComponentTestCase extends AbstractComponentTest {
@@ -55,8 +55,8 @@ public abstract class AbstractBridgedComponentTestCase extends AbstractComponent
     return CelementsTestUtils.registerComponentMock(role);
   }
 
-  public <T> T registerComponentMock(Class<T> role, String hint
-      ) throws ComponentRepositoryException {
+  public <T> T registerComponentMock(Class<T> role, String hint)
+      throws ComponentRepositoryException {
     return CelementsTestUtils.registerComponentMock(role, hint);
   }
 
