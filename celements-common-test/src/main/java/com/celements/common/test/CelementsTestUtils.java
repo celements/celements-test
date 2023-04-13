@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
+import java.util.function.Supplier;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -16,7 +17,6 @@ import javax.validation.constraints.NotNull;
 import org.apache.velocity.VelocityContext;
 import org.xwiki.component.descriptor.ComponentRole;
 import org.xwiki.component.descriptor.DefaultComponentDescriptor;
-import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.component.manager.ComponentRepositoryException;
 import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.context.Execution;
@@ -44,21 +44,21 @@ public final class CelementsTestUtils {
   public static final String DEFAULT_MAIN_WIKI = "xwikiWiki";
   public static final String DEFAULT_LANG = "de";
 
-  private static ExecutionContext getExecutionContext() {
-    return Utils.getComponent(Execution.class).getContext();
-  }
-
   private CelementsTestUtils() {}
 
   @SuppressWarnings("unchecked")
-  public static Collection<Object> getDefaultMocks() {
-    Collection<Object> defaultMocks = (Collection<Object>) getExecutionContext().getProperty(
-        EXECUTIONCONTEXT_KEY_MOCKS);
-    if (defaultMocks == null) {
-      defaultMocks = new ArrayList<>();
-      getExecutionContext().setProperty(EXECUTIONCONTEXT_KEY_MOCKS, defaultMocks);
+  private static <T> T getFromExecContext(String key, Supplier<T> defaultSupplier) {
+    ExecutionContext ctx = Utils.getComponent(Execution.class).getContext();
+    T value = (T) ctx.getProperty(key);
+    if (value == null) {
+      value = defaultSupplier.get();
+      ctx.setProperty(key, value);
     }
-    return defaultMocks;
+    return value;
+  }
+
+  public static Collection<Object> getDefaultMocks() {
+    return getFromExecContext(EXECUTIONCONTEXT_KEY_MOCKS, ArrayList::new);
   }
 
   public static <T> T createMockAndAddToDefault(final Class<T> toMock) {
@@ -91,12 +91,9 @@ public final class CelementsTestUtils {
     return wikiMock;
   }
 
-  @SuppressWarnings("unchecked")
   public static XWikiContext getContext() {
-    XWikiContext context = (XWikiContext) getExecutionContext().getProperty(
-        XWikiContext.EXECUTIONCONTEXT_KEY);
-    if (context == null) {
-      context = new XWikiContext();
+    return getFromExecContext(XWikiContext.EXECUTIONCONTEXT_KEY, () -> {
+      XWikiContext context = new XWikiContext();
       context.setDatabase(DEFAULT_DB);
       context.setMainXWiki(DEFAULT_MAIN_WIKI);
       context.setLanguage(DEFAULT_LANG);
@@ -112,14 +109,14 @@ public final class CelementsTestUtils {
         vcontext.put("msg", msg);
         vcontext.put("locale", locale);
       }
+      @SuppressWarnings("unchecked")
       Map<String, Object> gcontext = (Map<String, Object>) context.get("gcontext");
       if (gcontext != null) {
         gcontext.put("msg", msg);
         gcontext.put("locale", locale);
       }
-      getExecutionContext().setProperty(XWikiContext.EXECUTIONCONTEXT_KEY, context);
-    }
-    return context;
+      return context;
+    });
   }
 
   public static XWikiStoreInterface getStoreMock() throws ComponentRepositoryException {
@@ -246,6 +243,11 @@ public final class CelementsTestUtils {
   public static void verifyDefault(Object... mocks) {
     verify(getDefaultMocks().toArray());
     verify(mocks);
+  }
+
+  public static void resetDefault(Object... mocks) {
+    reset(getDefaultMocks().toArray());
+    reset(mocks);
   }
 
 }
