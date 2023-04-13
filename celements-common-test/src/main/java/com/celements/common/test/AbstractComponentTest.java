@@ -53,6 +53,7 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     ExecutionContext execCtx = new ExecutionContext();
     getSpringContext().getBean(Execution.class).setContext(execCtx);
     getSpringContext().getBean(ExecutionContextManager.class).initialize(execCtx);
+    getWikiMock();// TODO needed?
   }
 
   protected void registerMockConfigSource() throws ComponentRepositoryException {
