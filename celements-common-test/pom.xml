@@ -121,6 +121,13 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- Spring -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- Storage -->
     <dependency>
       <groupId>org.hibernate</groupId>
