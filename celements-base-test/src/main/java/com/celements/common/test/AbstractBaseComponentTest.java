@@ -26,9 +26,7 @@ public abstract class AbstractBaseComponentTest {
   @Before
   public void setUp() throws Exception {
     checkState(springCtx == null);
-    long t = System.currentTimeMillis();
     springCtx = new CelSpringContext(getAdditionalSpringConfigs());
-    System.err.println("CTXINIT: " + (System.currentTimeMillis() - t));
     springCtx.getBean(Container.class)
         .setApplicationContext(new TestXWikiApplicationContext());
   }
@@ -42,10 +40,8 @@ public abstract class AbstractBaseComponentTest {
 
   @After
   public void tearDown() throws Exception {
-    long t = System.currentTimeMillis();
     getSpringContext().close();
     springCtx = null;
-    System.err.println("CTXCLOSE: " + (System.currentTimeMillis() - t));
   }
 
   public GenericApplicationContext getSpringContext() {

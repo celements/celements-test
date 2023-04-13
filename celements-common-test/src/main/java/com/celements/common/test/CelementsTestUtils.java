@@ -39,9 +39,7 @@ import com.xpn.xwiki.web.XWikiMessageTool;
 
 public final class CelementsTestUtils {
 
-  public static final String CELEMENTS_CONFIGURATION_SRC_MOCK_KEY = "CELEMENTS_CONFIGURATION_SRC_MOCK_celementsproperties";
-  public static final String CELEMENTS_CONFIGURATION_SRC_ORIG_KEY = "CELEMENTS_CONFIGURATION_SRC_ORIG_celementsproperties";
-  public static final String EXECUTIONCONTEXT_KEY_MOCKS = "default_mocks";
+  public static final String EXECUTIONCONTEXT_KEY_MOCKS = "cel_test_default_mocks";
   public static final String DEFAULT_DB = "xwikidb";
   public static final String DEFAULT_MAIN_WIKI = "xwikiWiki";
   public static final String DEFAULT_LANG = "de";
@@ -119,7 +117,6 @@ public final class CelementsTestUtils {
         gcontext.put("msg", msg);
         gcontext.put("locale", locale);
       }
-      context.put(ComponentManager.class.getName(), Utils.getComponentManager());
       getExecutionContext().setProperty(XWikiContext.EXECUTIONCONTEXT_KEY, context);
     }
     return context;
