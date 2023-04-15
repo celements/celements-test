@@ -16,6 +16,7 @@ import org.xwiki.container.ApplicationContext;
 import org.xwiki.container.Container;
 
 import com.celements.spring.CelSpringConfig;
+import com.celements.spring.XWikiSpringConfig;
 import com.celements.spring.context.CelSpringContext;
 import com.google.common.collect.ImmutableList;
 
@@ -26,7 +27,7 @@ public abstract class AbstractBaseComponentTest {
   @Before
   public void setUp() throws Exception {
     checkState(springCtx == null);
-    springCtx = new CelSpringContext(getAdditionalSpringConfigs());
+    springCtx = new CelSpringContext(getSpringConfigs());
     springCtx.getBean(Container.class)
         .setApplicationContext(new TestXWikiApplicationContext());
   }
@@ -34,8 +35,8 @@ public abstract class AbstractBaseComponentTest {
   /**
    * Entry point for adding additional configs like {@link CelSpringConfig}.
    */
-  protected List<Class<?>> getAdditionalSpringConfigs() {
-    return ImmutableList.of();
+  protected List<Class<?>> getSpringConfigs() {
+    return ImmutableList.of(XWikiSpringConfig.class, CelSpringConfig.class);
   }
 
   @After
