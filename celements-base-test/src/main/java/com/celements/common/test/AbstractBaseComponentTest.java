@@ -12,11 +12,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.springframework.context.support.GenericApplicationContext;
 import org.xwiki.component.manager.ComponentManager;
+import org.xwiki.component.spring.XWikiSpringConfig;
 import org.xwiki.container.ApplicationContext;
 import org.xwiki.container.Container;
 
 import com.celements.spring.CelSpringConfig;
-import com.celements.spring.XWikiSpringConfig;
 import com.celements.spring.context.CelSpringContext;
 import com.google.common.collect.ImmutableList;
 
