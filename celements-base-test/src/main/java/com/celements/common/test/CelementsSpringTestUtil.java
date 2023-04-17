@@ -56,7 +56,7 @@ public final class CelementsSpringTestUtil {
 
   public static <T> T createDefaultMock(final Class<T> toMock) {
     T newMock = EasyMock.createMock(toMock);
-    String beanName = PREFIX + toMock.getClass().getName();
+    String beanName = PREFIX + toMock.getName();
     getContext().getBeanFactory().registerSingleton(beanName, newMock);
     return newMock;
   }
