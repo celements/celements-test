@@ -21,7 +21,7 @@ public final class CelementsSpringTestUtil {
 
   private static final ThreadLocal<CelSpringContext> CONTEXT = new ThreadLocal<>();
 
-  private static final String PREFIX = "com.celements.common.test.Mock|||";
+  private static final String PREFIX = "celementsTestMock-";
 
   private CelementsSpringTestUtil() {}
 
