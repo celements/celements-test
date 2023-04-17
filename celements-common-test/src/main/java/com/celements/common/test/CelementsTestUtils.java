@@ -1,9 +1,9 @@
 package com.celements.common.test;
 
 import static com.google.common.base.Preconditions.*;
+import static java.util.stream.Collectors.*;
 import static org.easymock.EasyMock.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
@@ -15,8 +15,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import org.apache.velocity.VelocityContext;
-import org.xwiki.component.descriptor.ComponentRole;
-import org.xwiki.component.descriptor.DefaultComponentDescriptor;
 import org.xwiki.component.manager.ComponentRepositoryException;
 import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.context.Execution;
@@ -39,7 +37,6 @@ import com.xpn.xwiki.web.XWikiMessageTool;
 
 public final class CelementsTestUtils {
 
-  public static final String EXECUTIONCONTEXT_KEY_MOCKS = "cel_test_default_mocks";
   public static final String DEFAULT_DB = "xwikidb";
   public static final String DEFAULT_MAIN_WIKI = "xwikiWiki";
   public static final String DEFAULT_LANG = "de";
@@ -58,28 +55,15 @@ public final class CelementsTestUtils {
   }
 
   public static Collection<Object> getDefaultMocks() {
-    return getFromExecContext(EXECUTIONCONTEXT_KEY_MOCKS, ArrayList::new);
+    return CelementsSpringTestUtil.streamDefaultMocks().collect(toList());
   }
 
   public static <T> T createMockAndAddToDefault(final Class<T> toMock) {
-    T newMock = createMock(toMock);
-    getDefaultMocks().add(newMock);
-    return newMock;
+    return CelementsSpringTestUtil.createDefaultMock(toMock);
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> T getMock(final Class<T> mockClass) {
-    T mock = null;
-    for (Object obj : getDefaultMocks()) {
-      if (mockClass.isInstance(obj)) {
-        if (mock == null) {
-          mock = (T) obj;
-        } else {
-          throw new IllegalStateException("Multiple mocks for class " + mockClass);
-        }
-      }
-    }
-    return mock;
+    return CelementsSpringTestUtil.getMock(mockClass);
   }
 
   public static XWiki getWikiMock() {
@@ -203,51 +187,38 @@ public final class CelementsTestUtils {
   }
 
   public static void setConfigSrcProperty(String key, Object value) {
-    ((MockConfigurationSource) Utils.getComponent(ConfigurationSource.class)).setProperty(key,
-        value);
+    ((MockConfigurationSource) Utils.getComponent(ConfigurationSource.class))
+        .setProperty(key, value);
   }
 
   public static void registerComponentMocks(Class<?>... roles) throws ComponentRepositoryException {
-    for (Class<?> role : roles) {
-      registerComponentMock(role);
-    }
+    CelementsSpringTestUtil.registerComponentMocks(roles);
   }
 
   public static <T> T registerComponentMock(Class<T> role) throws ComponentRepositoryException {
-    return registerComponentMock(role, ComponentRole.DEFAULT_HINT);
+    return CelementsSpringTestUtil.registerComponentMock(role);
   }
 
   public static <T> T registerComponentMock(Class<T> role, String hint)
       throws ComponentRepositoryException {
-    return registerComponentMock(role, hint, createMockAndAddToDefault(role));
+    return CelementsSpringTestUtil.registerComponentMock(role, hint);
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> T registerComponentMock(Class<T> role, String hint, T componentMock)
       throws ComponentRepositoryException {
-    DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<>();
-    descriptor.setRole(role);
-    descriptor.setRoleHint(hint);
-    if (componentMock != null) {
-      descriptor.setImplementation((Class<T>) componentMock.getClass());
-    }
-    Utils.getComponentManager().registerComponent(descriptor, componentMock);
-    return componentMock;
+    return CelementsSpringTestUtil.registerComponent(role, hint, componentMock);
   }
 
   public static void replayDefault(Object... mocks) {
-    replay(getDefaultMocks().toArray());
-    replay(mocks);
+    CelementsSpringTestUtil.replayDefault(mocks);
   }
 
   public static void verifyDefault(Object... mocks) {
-    verify(getDefaultMocks().toArray());
-    verify(mocks);
+    CelementsSpringTestUtil.resetDefault(mocks);
   }
 
   public static void resetDefault(Object... mocks) {
-    reset(getDefaultMocks().toArray());
-    reset(mocks);
+    CelementsSpringTestUtil.resetDefault(mocks);
   }
 
 }

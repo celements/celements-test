@@ -64,7 +64,7 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   }
 
   protected List<String> getConfigSourceHints() {
-    return ImmutableList.of("default", "all", "wiki", "fromwiki", "allproperties",
+    return ImmutableList.of("default", "all", "wiki", "fromwiki", "allproperties", "properties",
         "xwikiproperties", "celementsproperties");
   }
 
@@ -72,9 +72,6 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   @Override
   public final void tearDown() throws Exception {
     try {
-      // let's reset the mocks here to avoid memory leaks into the ClassLoader
-      CelementsTestUtils.resetDefault();
-      CelementsTestUtils.getDefaultMocks().clear();
       CelementsTestUtils.getContext().clear();
       CelementsTestUtils.getContext().setWiki(null);
       getSpringContext().getBean(Execution.class).removeContext();
