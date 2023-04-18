@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableList;
 public abstract class AbstractBaseComponentTest {
 
   @Before
-  public void setUpSpringContext() throws Exception {
+  public final void setUpSpring() throws Exception {
     CelSpringContext springCtx = new CelSpringContext(getSpringConfigs());
     CelementsSpringTestUtil.setContext(springCtx);
   }
@@ -27,7 +27,7 @@ public abstract class AbstractBaseComponentTest {
   }
 
   @After
-  public void tearDownSpringContext() throws Exception {
+  public final void tearDownSpring() throws Exception {
     CelementsSpringTestUtil.removeContext()
         .close();
   }

@@ -19,8 +19,6 @@
  */
 package com.celements.common.test;
 
-import static org.easymock.EasyMock.*;
-
 import org.xwiki.component.manager.ComponentRepositoryException;
 
 import com.xpn.xwiki.XWiki;
@@ -52,26 +50,24 @@ public abstract class AbstractBridgedComponentTestCase extends AbstractComponent
   }
 
   public <T> T registerComponentMock(Class<T> role) throws ComponentRepositoryException {
-    return CelementsTestUtils.registerComponentMock(role);
+    return CelementsSpringTestUtil.registerComponentMock(role);
   }
 
   public <T> T registerComponentMock(Class<T> role, String hint)
       throws ComponentRepositoryException {
-    return CelementsTestUtils.registerComponentMock(role, hint);
+    return CelementsSpringTestUtil.registerComponentMock(role, hint);
   }
 
   public <T> T createMockAndAddToDefault(final Class<T> toMock) {
-    return CelementsTestUtils.createMockAndAddToDefault(toMock);
+    return CelementsSpringTestUtil.createDefaultMock(toMock);
   }
 
   protected void replayDefault(Object... mocks) {
-    replay(CelementsTestUtils.getDefaultMocks().toArray());
-    replay(mocks);
+    CelementsSpringTestUtil.replayDefault(mocks);
   }
 
   protected void verifyDefault(Object... mocks) {
-    verify(CelementsTestUtils.getDefaultMocks().toArray());
-    verify(mocks);
+    CelementsSpringTestUtil.verifyDefault(mocks);
   }
 
 }

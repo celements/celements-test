@@ -116,8 +116,10 @@ public class AbstractBridgedComponentTestCaseTest extends AbstractBridgedCompone
     ITestServiceRole testServiceMock = registerComponentMock(ITestServiceRole.class,
         "injected");
     assertSame(testServiceMock, Utils.getComponent(ITestServiceRole.class, "injected"));
-    this.tearDown();
-    this.setUp();
+    this.tearDownXWiki();
+    this.tearDownSpring();
+    this.setUpSpring();
+    this.setUpXWiki();
     assertNotNull(Utils.getComponent(ITestServiceRole.class, "injected"));
     assertNotSame(testServiceMock, Utils.getComponent(ITestServiceRole.class, "injected"));
   }

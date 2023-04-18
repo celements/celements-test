@@ -41,15 +41,13 @@ import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.web.Utils;
 
 /**
- * Extension of {@link AbstractBaseComponentTest} which prepares the {@link ExecutionContext} and
- * {@link MockConfigurationSource} and can be used together with {@link CelementsTestUtils}
+ * Extension of {@link AbstractBaseComponentTest} which prepares the XWiki environment and can be
+ * used together with {@link CelementsTestUtils}.
  */
 public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
 
   @Before
-  @Override
-  public final void setUp() throws Exception {
-    super.setUp();
+  public final void setUpXWiki() throws Exception {
     Utils.setComponentManager(getComponentManager());
     getSpringContext().getBean(Container.class)
         .setApplicationContext(new TestXWikiApplicationContext());
@@ -77,15 +75,13 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   }
 
   @After
-  @Override
-  public final void tearDown() throws Exception {
+  public final void tearDownXWiki() throws Exception {
     try {
       CelementsTestUtils.getContext().clear();
       CelementsTestUtils.getContext().setWiki(null);
       getSpringContext().getBean(Execution.class).removeContext();
     } finally {
       Utils.setComponentManager(null);
-      super.tearDown();
     }
   }
 
