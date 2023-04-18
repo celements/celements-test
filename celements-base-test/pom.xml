@@ -43,20 +43,6 @@
       <groupId>com.celements</groupId>
       <artifactId>celements-component</artifactId>
       <version>6.0-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.celements</groupId>
-      <artifactId>celements-servlet</artifactId>
-      <version>6.0-SNAPSHOT</version>
-      <scope>provided</scope>
-    </dependency>
-    
-    <!-- XWiki -->
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-core-bridge</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <!-- Spring -->
@@ -70,59 +56,9 @@
       <version>${spring.version}</version>
     </dependency>
 
-    <!-- Storage -->
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
-      <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-collections</groupId>
-          <artifactId>commons-collections</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>dom4j</groupId>
-          <artifactId>dom4j</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <!-- Commons -->
-    <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
-    </dependency>
-
-    <!-- Authentication -->
-    <dependency>
-      <groupId>securityfilter</groupId>
-      <artifactId>securityfilter</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <!--
-      Make sure we provide a default implementation of slf4j for any test
-      indirectly use it
-    -->
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-1.2-api</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-      <scope>runtime</scope>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -135,15 +71,6 @@
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.seleniumhq.selenium</groupId>
-      <artifactId>selenium-java</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.mutabilitydetector</groupId>
-      <artifactId>MutabilityDetector</artifactId>
-      <version>0.10.1</version>
     </dependency>
   </dependencies>
   <build>

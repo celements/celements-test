@@ -19,6 +19,10 @@
  */
 package com.celements.common.test;
 
+import java.io.File;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import org.junit.After;
@@ -26,6 +30,8 @@ import org.junit.Before;
 import org.xwiki.component.descriptor.DefaultComponentDescriptor;
 import org.xwiki.component.manager.ComponentRepositoryException;
 import org.xwiki.configuration.ConfigurationSource;
+import org.xwiki.container.ApplicationContext;
+import org.xwiki.container.Container;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
 import org.xwiki.context.ExecutionContextManager;
@@ -45,6 +51,8 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   public final void setUp() throws Exception {
     super.setUp();
     Utils.setComponentManager(getComponentManager());
+    getSpringContext().getBean(Container.class)
+        .setApplicationContext(new TestXWikiApplicationContext());
     registerMockConfigSource();
     ExecutionContext execCtx = new ExecutionContext();
     getSpringContext().getBean(Execution.class).setContext(execCtx);
@@ -83,6 +91,27 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
 
   public MockConfigurationSource getConfigurationSource() {
     return getSpringContext().getBean(MockConfigurationSource.class);
+  }
+
+  public static class TestXWikiApplicationContext implements ApplicationContext {
+
+    @Override
+    public URL getResource(String resourceName) throws MalformedURLException {
+      if (resourceName.contains("xwiki.properties")) {
+        return this.getClass().getClassLoader().getResource("xwiki.properties");
+      }
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public InputStream getResourceAsStream(String resourceName) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public File getTemporaryDirectory() {
+      throw new UnsupportedOperationException();
+    }
   }
 
 }

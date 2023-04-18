@@ -1,7 +1,6 @@
 package com.celements.common.test;
 
 import static com.google.common.base.Preconditions.*;
-import static org.easymock.EasyMock.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +16,9 @@ import com.celements.spring.context.CelSpringContext;
 
 public final class CelementsSpringTestUtil {
 
-  private static CelSpringContext context;
+  public static final String DEFAULT_MOCKS_BEAN_NAME = "celementsTestDefaultMocks";
 
-  private static final String DEFAULT_MOCKS_BEAN_NAME = "celementsTestDefaultMocks";
+  private static CelSpringContext context;
 
   private CelementsSpringTestUtil() {}
 
@@ -96,7 +95,7 @@ public final class CelementsSpringTestUtil {
 
   public static void replayDefault(Object... mocks) {
     getDefaultMocks().forEach(EasyMock::replay);
-    replay(mocks);
+    EasyMock.replay(mocks);
   }
 
   public static void verifyDefault(Object... mocks) {
