@@ -1,7 +1,6 @@
 package com.celements.common.test;
 
 import static com.google.common.base.Preconditions.*;
-import static java.util.stream.Collectors.*;
 import static org.easymock.EasyMock.*;
 
 import java.util.Collection;
@@ -55,7 +54,7 @@ public final class CelementsTestUtils {
   }
 
   public static Collection<Object> getDefaultMocks() {
-    return CelementsSpringTestUtil.streamDefaultMocks().collect(toList());
+    return CelementsSpringTestUtil.getDefaultMocks();
   }
 
   public static <T> T createMockAndAddToDefault(final Class<T> toMock) {
