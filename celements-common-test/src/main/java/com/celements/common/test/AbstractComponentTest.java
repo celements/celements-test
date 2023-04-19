@@ -54,14 +54,13 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     ExecutionContext execCtx = new ExecutionContext();
     getSpringContext().getBean(Execution.class).setContext(execCtx);
     getSpringContext().getBean(ExecutionContextManager.class).initialize(execCtx);
-    CelementsTestUtils.setBeanFactory(getSpringContext());
     CelementsTestUtils.getWikiMock();
   }
 
   protected void registerMockConfigSource() throws ComponentRepositoryException {
     MockConfigurationSource cfgSrc = new MockConfigurationSource();
     for (String hint : getConfigSourceHints()) {
-      registerComponent(ConfigurationSource.class, hint, cfgSrc);
+      registerComponentMock(ConfigurationSource.class, hint, cfgSrc);
     }
   }
 
@@ -77,7 +76,6 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
       CelementsTestUtils.getContext().setWiki(null);
       getSpringContext().getBean(Execution.class).removeContext();
     } finally {
-      CelementsTestUtils.setBeanFactory(null);
       Utils.setComponentManager(null);
     }
   }

@@ -80,11 +80,11 @@ public abstract class AbstractBaseComponentTest {
 
   public <T> T registerComponentMock(Class<T> role, String hint)
       throws ComponentRepositoryException {
-    return registerComponent(role, hint, createDefaultMock(role));
+    return registerComponentMock(role, hint, createDefaultMock(role));
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T registerComponent(Class<T> role, String hint, T instance)
+  public <T> T registerComponentMock(Class<T> role, String hint, T instance)
       throws ComponentRepositoryException {
     DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<>();
     descriptor.setRole(role);

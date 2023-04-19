@@ -13,7 +13,6 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.velocity.VelocityContext;
 import org.easymock.EasyMock;
-import org.springframework.beans.factory.BeanFactory;
 import org.xwiki.component.descriptor.ComponentRole;
 import org.xwiki.component.descriptor.DefaultComponentDescriptor;
 import org.xwiki.component.manager.ComponentManager;
@@ -33,6 +32,7 @@ import com.xpn.xwiki.objects.classes.BaseClass;
 import com.xpn.xwiki.objects.classes.ListClass;
 import com.xpn.xwiki.objects.classes.PropertyClass;
 import com.xpn.xwiki.store.XWikiStoreInterface;
+import com.xpn.xwiki.web.Utils;
 import com.xpn.xwiki.web.XWikiMessageTool;
 
 public final class CelementsTestUtils {
@@ -41,29 +41,30 @@ public final class CelementsTestUtils {
   public static final String DEFAULT_MAIN_WIKI = "xwikiWiki";
   public static final String DEFAULT_LANG = "de";
 
-  private static BeanFactory beanFactory;
-
   private CelementsTestUtils() {}
 
-  public static BeanFactory getBeanFactory() {
-    checkState(beanFactory != null, "must be called within AbstractComponentTest");
-    return beanFactory;
-  }
-
-  static void setBeanFactory(BeanFactory factory) {
-    beanFactory = factory;
-  }
-
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#getDefaultMocks}
+   */
+  @Deprecated
   public static CelDefaultMocks getDefaultMocks() {
-    return getBeanFactory().getBean(CelDefaultMocks.class);
+    return Utils.getComponent(CelDefaultMocks.class);
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#createDefaultMock}
+   */
+  @Deprecated
   public static <T> T createMockAndAddToDefault(final Class<T> toMock) {
     T newMock = EasyMock.createMock(toMock);
     getDefaultMocks().add(newMock);
     return newMock;
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#getMock}
+   */
+  @Deprecated
   public static <T> T getMock(final Class<T> mockClass) {
     return getDefaultMocks().get(mockClass);
   }
@@ -78,7 +79,7 @@ public final class CelementsTestUtils {
   }
 
   public static XWikiContext getContext() {
-    ExecutionContext executionContext = getBeanFactory().getBean(Execution.class).getContext();
+    ExecutionContext executionContext = Utils.getComponent(Execution.class).getContext();
     XWikiContext context = (XWikiContext) executionContext
         .getProperty(XWikiContext.EXECUTIONCONTEXT_KEY);
     if (context == null) {
@@ -193,27 +194,42 @@ public final class CelementsTestUtils {
   }
 
   public static void setConfigSrcProperty(String key, Object value) {
-    getBeanFactory().getBean(MockConfigurationSource.class)
-        .setProperty(key, value);
+    Utils.getComponent(MockConfigurationSource.class).setProperty(key, value);
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#registerComponentMocks}
+   */
+  @Deprecated
   public static void registerComponentMocks(Class<?>... roles) throws ComponentRepositoryException {
     for (Class<?> role : roles) {
       registerComponentMock(role);
     }
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#registerComponentMock}
+   */
+  @Deprecated
   public static <T> T registerComponentMock(Class<T> role) throws ComponentRepositoryException {
     return registerComponentMock(role, ComponentRole.DEFAULT_HINT);
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#registerComponentMock}
+   */
+  @Deprecated
   public static <T> T registerComponentMock(Class<T> role, String hint)
       throws ComponentRepositoryException {
-    return registerComponent(role, hint, createMockAndAddToDefault(role));
+    return registerComponentMock(role, hint, createMockAndAddToDefault(role));
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#registerComponentMock}
+   */
+  @Deprecated
   @SuppressWarnings("unchecked")
-  public static <T> T registerComponent(Class<T> role, String hint, T instance)
+  public static <T> T registerComponentMock(Class<T> role, String hint, T instance)
       throws ComponentRepositoryException {
     DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<>();
     descriptor.setRole(role);
@@ -221,21 +237,32 @@ public final class CelementsTestUtils {
     if (instance != null) {
       descriptor.setImplementation((Class<T>) instance.getClass());
     }
-    getBeanFactory().getBean(ComponentManager.class)
-        .registerComponent(descriptor, instance);
+    Utils.getComponent(ComponentManager.class).registerComponent(descriptor, instance);
     return instance;
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#replayDefault}
+   */
+  @Deprecated
   public void replayDefault(Object... mocks) {
     getDefaultMocks().stream().forEach(EasyMock::replay);
     EasyMock.replay(mocks);
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#verifyDefault}
+   */
+  @Deprecated
   public void verifyDefault(Object... mocks) {
     getDefaultMocks().stream().forEach(EasyMock::verify);
     EasyMock.verify(mocks);
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#resetDefault}
+   */
+  @Deprecated
   public void resetDefault(Object... mocks) {
     getDefaultMocks().stream().forEach(EasyMock::reset);
     EasyMock.reset(mocks);
