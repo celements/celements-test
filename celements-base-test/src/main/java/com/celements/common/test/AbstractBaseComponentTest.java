@@ -17,6 +17,9 @@ import com.celements.spring.CelSpringConfig;
 import com.celements.spring.context.CelSpringContext;
 import com.google.common.collect.ImmutableList;
 
+/**
+ * Prepares the Spring testing environment.
+ */
 public abstract class AbstractBaseComponentTest {
 
   private CelSpringContext context;

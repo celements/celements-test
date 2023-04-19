@@ -7,7 +7,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ResourceBundle;
-import java.util.function.Supplier;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -55,17 +54,6 @@ public final class CelementsTestUtils {
     beanFactory = factory;
   }
 
-  @SuppressWarnings("unchecked")
-  private static <T> T getFromExecContext(String key, Supplier<T> defaultSupplier) {
-    ExecutionContext ctx = getBeanFactory().getBean(Execution.class).getContext();
-    T value = (T) ctx.getProperty(key);
-    if (value == null) {
-      value = defaultSupplier.get();
-      ctx.setProperty(key, value);
-    }
-    return value;
-  }
-
   public static CelDefaultMocks getDefaultMocks() {
     return getBeanFactory().getBean(CelDefaultMocks.class);
   }
@@ -90,8 +78,11 @@ public final class CelementsTestUtils {
   }
 
   public static XWikiContext getContext() {
-    return getFromExecContext(XWikiContext.EXECUTIONCONTEXT_KEY, () -> {
-      XWikiContext context = new XWikiContext();
+    ExecutionContext executionContext = getBeanFactory().getBean(Execution.class).getContext();
+    XWikiContext context = (XWikiContext) executionContext
+        .getProperty(XWikiContext.EXECUTIONCONTEXT_KEY);
+    if (context == null) {
+      context = new XWikiContext();
       context.setDatabase(DEFAULT_DB);
       context.setMainXWiki(DEFAULT_MAIN_WIKI);
       context.setLanguage(DEFAULT_LANG);
@@ -113,8 +104,9 @@ public final class CelementsTestUtils {
         gcontext.put("msg", msg);
         gcontext.put("locale", locale);
       }
-      return context;
-    });
+      executionContext.setProperty(XWikiContext.EXECUTIONCONTEXT_KEY, context);
+    }
+    return context;
   }
 
   public static XWikiStoreInterface getStoreMock() throws ComponentRepositoryException {
