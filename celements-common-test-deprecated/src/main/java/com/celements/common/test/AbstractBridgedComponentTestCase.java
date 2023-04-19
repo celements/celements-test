@@ -19,8 +19,6 @@
  */
 package com.celements.common.test;
 
-import org.xwiki.component.manager.ComponentRepositoryException;
-
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
 
@@ -49,25 +47,8 @@ public abstract class AbstractBridgedComponentTestCase extends AbstractComponent
     return CelementsTestUtils.getMessageToolStub();
   }
 
-  public <T> T registerComponentMock(Class<T> role) throws ComponentRepositoryException {
-    return CelementsSpringTestUtil.registerComponentMock(role);
-  }
-
-  public <T> T registerComponentMock(Class<T> role, String hint)
-      throws ComponentRepositoryException {
-    return CelementsSpringTestUtil.registerComponentMock(role, hint);
-  }
-
   public <T> T createMockAndAddToDefault(final Class<T> toMock) {
-    return CelementsSpringTestUtil.createDefaultMock(toMock);
-  }
-
-  protected void replayDefault(Object... mocks) {
-    CelementsSpringTestUtil.replayDefault(mocks);
-  }
-
-  protected void verifyDefault(Object... mocks) {
-    CelementsSpringTestUtil.verifyDefault(mocks);
+    return CelementsTestUtils.createMockAndAddToDefault(toMock);
   }
 
 }

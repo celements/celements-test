@@ -3,7 +3,6 @@ package com.celements.common.test;
 import static com.google.common.base.Preconditions.*;
 import static org.easymock.EasyMock.*;
 
-import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,8 +13,12 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import org.apache.velocity.VelocityContext;
+import org.easymock.EasyMock;
+import org.springframework.beans.factory.BeanFactory;
+import org.xwiki.component.descriptor.ComponentRole;
+import org.xwiki.component.descriptor.DefaultComponentDescriptor;
+import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.component.manager.ComponentRepositoryException;
-import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
 import org.xwiki.model.reference.DocumentReference;
@@ -31,7 +34,6 @@ import com.xpn.xwiki.objects.classes.BaseClass;
 import com.xpn.xwiki.objects.classes.ListClass;
 import com.xpn.xwiki.objects.classes.PropertyClass;
 import com.xpn.xwiki.store.XWikiStoreInterface;
-import com.xpn.xwiki.web.Utils;
 import com.xpn.xwiki.web.XWikiMessageTool;
 
 public final class CelementsTestUtils {
@@ -40,11 +42,22 @@ public final class CelementsTestUtils {
   public static final String DEFAULT_MAIN_WIKI = "xwikiWiki";
   public static final String DEFAULT_LANG = "de";
 
+  private static BeanFactory beanFactory;
+
   private CelementsTestUtils() {}
+
+  public static BeanFactory getBeanFactory() {
+    checkState(beanFactory != null, "must be called within AbstractComponentTest");
+    return beanFactory;
+  }
+
+  static void setBeanFactory(BeanFactory factory) {
+    beanFactory = factory;
+  }
 
   @SuppressWarnings("unchecked")
   private static <T> T getFromExecContext(String key, Supplier<T> defaultSupplier) {
-    ExecutionContext ctx = Utils.getComponent(Execution.class).getContext();
+    ExecutionContext ctx = getBeanFactory().getBean(Execution.class).getContext();
     T value = (T) ctx.getProperty(key);
     if (value == null) {
       value = defaultSupplier.get();
@@ -53,16 +66,18 @@ public final class CelementsTestUtils {
     return value;
   }
 
-  public static Collection<Object> getDefaultMocks() {
-    return CelementsSpringTestUtil.getDefaultMocks();
+  public static CelDefaultMocks getDefaultMocks() {
+    return getBeanFactory().getBean(CelDefaultMocks.class);
   }
 
   public static <T> T createMockAndAddToDefault(final Class<T> toMock) {
-    return CelementsSpringTestUtil.createDefaultMock(toMock);
+    T newMock = EasyMock.createMock(toMock);
+    getDefaultMocks().add(newMock);
+    return newMock;
   }
 
   public static <T> T getMock(final Class<T> mockClass) {
-    return CelementsSpringTestUtil.getMock(mockClass);
+    return getDefaultMocks().get(mockClass);
   }
 
   public static XWiki getWikiMock() {
@@ -186,38 +201,52 @@ public final class CelementsTestUtils {
   }
 
   public static void setConfigSrcProperty(String key, Object value) {
-    ((MockConfigurationSource) Utils.getComponent(ConfigurationSource.class))
+    getBeanFactory().getBean(MockConfigurationSource.class)
         .setProperty(key, value);
   }
 
   public static void registerComponentMocks(Class<?>... roles) throws ComponentRepositoryException {
-    CelementsSpringTestUtil.registerComponentMocks(roles);
+    for (Class<?> role : roles) {
+      registerComponentMock(role);
+    }
   }
 
   public static <T> T registerComponentMock(Class<T> role) throws ComponentRepositoryException {
-    return CelementsSpringTestUtil.registerComponentMock(role);
+    return registerComponentMock(role, ComponentRole.DEFAULT_HINT);
   }
 
   public static <T> T registerComponentMock(Class<T> role, String hint)
       throws ComponentRepositoryException {
-    return CelementsSpringTestUtil.registerComponentMock(role, hint);
+    return registerComponent(role, hint, createMockAndAddToDefault(role));
   }
 
-  public static <T> T registerComponentMock(Class<T> role, String hint, T componentMock)
+  @SuppressWarnings("unchecked")
+  public static <T> T registerComponent(Class<T> role, String hint, T instance)
       throws ComponentRepositoryException {
-    return CelementsSpringTestUtil.registerComponent(role, hint, componentMock);
+    DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<>();
+    descriptor.setRole(role);
+    descriptor.setRoleHint(hint);
+    if (instance != null) {
+      descriptor.setImplementation((Class<T>) instance.getClass());
+    }
+    getBeanFactory().getBean(ComponentManager.class)
+        .registerComponent(descriptor, instance);
+    return instance;
   }
 
-  public static void replayDefault(Object... mocks) {
-    CelementsSpringTestUtil.replayDefault(mocks);
+  public void replayDefault(Object... mocks) {
+    getDefaultMocks().stream().forEach(EasyMock::replay);
+    EasyMock.replay(mocks);
   }
 
-  public static void verifyDefault(Object... mocks) {
-    CelementsSpringTestUtil.resetDefault(mocks);
+  public void verifyDefault(Object... mocks) {
+    getDefaultMocks().stream().forEach(EasyMock::verify);
+    EasyMock.verify(mocks);
   }
 
-  public static void resetDefault(Object... mocks) {
-    CelementsSpringTestUtil.resetDefault(mocks);
+  public void resetDefault(Object... mocks) {
+    getDefaultMocks().stream().forEach(EasyMock::reset);
+    EasyMock.reset(mocks);
   }
 
 }
