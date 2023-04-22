@@ -3,8 +3,6 @@ package com.celements.common.test;
 import static com.google.common.base.Preconditions.*;
 import static org.easymock.EasyMock.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,11 +13,10 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.velocity.VelocityContext;
 import org.easymock.EasyMock;
-import org.easymock.IAnswer;
+import org.xwiki.component.descriptor.ComponentRole;
 import org.xwiki.component.descriptor.DefaultComponentDescriptor;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.component.manager.ComponentRepositoryException;
-import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
 import org.xwiki.model.reference.DocumentReference;
@@ -40,62 +37,36 @@ import com.xpn.xwiki.web.XWikiMessageTool;
 
 public final class CelementsTestUtils {
 
-  public static final String CELEMENTS_CONFIGURATION_SRC_MOCK_KEY = "CELEMENTS_CONFIGURATION_SRC_MOCK_celementsproperties";
-  public static final String CELEMENTS_CONFIGURATION_SRC_ORIG_KEY = "CELEMENTS_CONFIGURATION_SRC_ORIG_celementsproperties";
-  public static final String EXECUTIONCONTEXT_KEY_MOCKS = "default_mocks";
   public static final String DEFAULT_DB = "xwikidb";
   public static final String DEFAULT_MAIN_WIKI = "xwikiWiki";
   public static final String DEFAULT_LANG = "de";
 
-  public static EasyMock easyMock;
-
-  private static ExecutionContext getExecutionContext() {
-    return Utils.getComponent(Execution.class).getContext();
-  }
-
   private CelementsTestUtils() {}
 
-  @SuppressWarnings("unchecked")
-  public static Collection<Object> getDefaultMocks() {
-    Collection<Object> defaultMocks = (Collection<Object>) getExecutionContext().getProperty(
-        EXECUTIONCONTEXT_KEY_MOCKS);
-    if (defaultMocks == null) {
-      defaultMocks = new ArrayList<>();
-      getExecutionContext().setProperty(EXECUTIONCONTEXT_KEY_MOCKS, defaultMocks);
-    }
-    return defaultMocks;
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#getDefaultMocks}
+   */
+  @Deprecated
+  public static CelDefaultMocks getDefaultMocks() {
+    return Utils.getComponent(CelDefaultMocks.class);
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#createDefaultMock}
+   */
+  @Deprecated
   public static <T> T createMockAndAddToDefault(final Class<T> toMock) {
-    T newMock = createMock(toMock);
+    T newMock = EasyMock.createMock(toMock);
     getDefaultMocks().add(newMock);
     return newMock;
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#getMock}
+   */
+  @Deprecated
   public static <T> T getMock(final Class<T> mockClass) {
-    T mock = null;
-    for (Object obj : getDefaultMocks()) {
-      if (mockClass.isInstance(obj)) {
-        if (mock == null) {
-          mock = (T) obj;
-        } else {
-          throw new IllegalStateException("Multiple mocks for class " + mockClass);
-        }
-      }
-    }
-    return mock;
-  }
-
-  public static <T> T initComponentMock(Class<T> mockComponentClass, String mockHint) {
-    T mockObj = createMockAndAddToDefault(mockComponentClass);
-    try {
-      registerComponentMock(mockComponentClass, mockHint, mockObj);
-    } catch (ComponentRepositoryException crExp) {
-      throw new IllegalStateException("Failed to initialize mock for class '"
-          + mockComponentClass.getName() + "'", crExp);
-    }
-    return mockObj;
+    return getDefaultMocks().get(mockClass);
   }
 
   public static XWiki getWikiMock() {
@@ -107,10 +78,10 @@ public final class CelementsTestUtils {
     return wikiMock;
   }
 
-  @SuppressWarnings("unchecked")
   public static XWikiContext getContext() {
-    XWikiContext context = (XWikiContext) getExecutionContext().getProperty(
-        XWikiContext.EXECUTIONCONTEXT_KEY);
+    ExecutionContext executionContext = Utils.getComponent(Execution.class).getContext();
+    XWikiContext context = (XWikiContext) executionContext
+        .getProperty(XWikiContext.EXECUTIONCONTEXT_KEY);
     if (context == null) {
       context = new XWikiContext();
       context.setDatabase(DEFAULT_DB);
@@ -128,13 +99,13 @@ public final class CelementsTestUtils {
         vcontext.put("msg", msg);
         vcontext.put("locale", locale);
       }
+      @SuppressWarnings("unchecked")
       Map<String, Object> gcontext = (Map<String, Object>) context.get("gcontext");
       if (gcontext != null) {
         gcontext.put("msg", msg);
         gcontext.put("locale", locale);
       }
-      context.put(ComponentManager.class.getName(), Utils.getComponentManager());
-      getExecutionContext().setProperty(XWikiContext.EXECUTIONCONTEXT_KEY, context);
+      executionContext.setProperty(XWikiContext.EXECUTIONCONTEXT_KEY, context);
     }
     return context;
   }
@@ -165,14 +136,10 @@ public final class CelementsTestUtils {
   public static BaseClass expectNewBaseObject(final DocumentReference classRef)
       throws XWikiException {
     BaseClass bClass = createBaseClassMock(classRef);
-    expect(bClass.newCustomClassInstance(same(getContext()))).andAnswer(new IAnswer<BaseObject>() {
-
-      @Override
-      public BaseObject answer() throws Throwable {
-        BaseObject bObj = new BaseObject();
-        bObj.setXClassReference(classRef);
-        return bObj;
-      }
+    expect(bClass.newCustomClassInstance(same(getContext()))).andAnswer(() -> {
+      BaseObject bObj = new BaseObject();
+      bObj.setXClassReference(classRef);
+      return bObj;
     }).anyTimes();
     return bClass;
   }
@@ -227,42 +194,78 @@ public final class CelementsTestUtils {
   }
 
   public static void setConfigSrcProperty(String key, Object value) {
-    ((MockConfigurationSource) Utils.getComponent(ConfigurationSource.class)).setProperty(key,
-        value);
+    Utils.getComponent(MockConfigurationSource.class).setProperty(key, value);
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#registerComponentMocks}
+   */
+  @Deprecated
   public static void registerComponentMocks(Class<?>... roles) throws ComponentRepositoryException {
     for (Class<?> role : roles) {
       registerComponentMock(role);
     }
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#registerComponentMock}
+   */
+  @Deprecated
   public static <T> T registerComponentMock(Class<T> role) throws ComponentRepositoryException {
-    return registerComponentMock(role, "default");
+    return registerComponentMock(role, ComponentRole.DEFAULT_HINT);
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#registerComponentMock}
+   */
+  @Deprecated
   public static <T> T registerComponentMock(Class<T> role, String hint)
       throws ComponentRepositoryException {
     return registerComponentMock(role, hint, createMockAndAddToDefault(role));
   }
 
-  public static <T> T registerComponentMock(Class<T> role, String hint, T componentMock)
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#registerComponentMock}
+   */
+  @Deprecated
+  @SuppressWarnings("unchecked")
+  public static <T> T registerComponentMock(Class<T> role, String hint, T instance)
       throws ComponentRepositoryException {
     DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<>();
     descriptor.setRole(role);
     descriptor.setRoleHint(hint);
-    Utils.getComponentManager().registerComponent(descriptor, componentMock);
-    return componentMock;
+    if (instance != null) {
+      descriptor.setImplementation((Class<T>) instance.getClass());
+    }
+    Utils.getComponent(ComponentManager.class).registerComponent(descriptor, instance);
+    return instance;
   }
 
-  public static void replayDefault(Object... mocks) {
-    replay(getDefaultMocks().toArray());
-    replay(mocks);
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#replayDefault}
+   */
+  @Deprecated
+  public void replayDefault(Object... mocks) {
+    getDefaultMocks().stream().forEach(EasyMock::replay);
+    EasyMock.replay(mocks);
   }
 
-  public static void verifyDefault(Object... mocks) {
-    verify(getDefaultMocks().toArray());
-    verify(mocks);
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#verifyDefault}
+   */
+  @Deprecated
+  public void verifyDefault(Object... mocks) {
+    getDefaultMocks().stream().forEach(EasyMock::verify);
+    EasyMock.verify(mocks);
+  }
+
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#resetDefault}
+   */
+  @Deprecated
+  public void resetDefault(Object... mocks) {
+    getDefaultMocks().stream().forEach(EasyMock::reset);
+    EasyMock.reset(mocks);
   }
 
 }

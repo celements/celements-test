@@ -24,11 +24,11 @@
   <parent>
     <groupId>com.celements</groupId>
     <artifactId>base-pom</artifactId>
-    <version>5.7</version>
+    <version>6.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>celements-shared-tests-deprecated</artifactId>
-  <version>5.2-SNAPSHOT</version>
+  <version>6.0-SNAPSHOT</version>
   <description>Celements Shared Tests Deprecated Classes</description>
   <scm>
     <connection>scm:git:git@github.com:celements/celements-shared-tests.git</connection>
@@ -37,11 +37,16 @@
     <tag>HEAD</tag>
   </scm>
   <dependencies>
-    <!-- Add here all your dependencies -->
+    <dependency>
+      <groupId>com.celements</groupId>
+      <artifactId>celements-commons</artifactId>
+      <version>5.0</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-component</artifactId>
-      <version>5.1</version>
+      <version>6.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -58,40 +63,20 @@
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
-      <artifactId>celements-shared-tests</artifactId>
-      <version>5.1</version>
-    </dependency>
-    <!-- Celements-XWiki -->
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-core-shared-tests</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-codec</groupId>
-          <artifactId>commons-codec</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>log4j</groupId>
-          <artifactId>log4j</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>junit</groupId>
-          <artifactId>junit-dep</artifactId>
-        </exclusion>
-      </exclusions>
+      <artifactId>celements-servlet</artifactId>
+      <version>6.0-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
+      <artifactId>celements-shared-tests</artifactId>
+      <version>6.0-SNAPSHOT</version>
+    </dependency>
+    <!-- Celements-XWiki -->
+    <dependency>
+      <groupId>com.celements</groupId>
       <artifactId>celements-xwiki-core</artifactId>
-      <version>5.5</version>
+      <version>6.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -134,6 +119,14 @@
       <artifactId>xwiki-core-observation-remote</artifactId>
       <scope>provided</scope>
     </dependency>
+
+    <!-- Spring -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- Storage -->
     <dependency>
       <groupId>org.hibernate</groupId>

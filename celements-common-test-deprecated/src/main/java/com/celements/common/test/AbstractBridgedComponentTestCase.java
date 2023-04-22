@@ -19,10 +19,6 @@
  */
 package com.celements.common.test;
 
-import static org.easymock.EasyMock.*;
-
-import org.xwiki.component.manager.ComponentRepositoryException;
-
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
 
@@ -30,11 +26,11 @@ import com.xpn.xwiki.XWikiContext;
  * Extension of {@link org.xwiki.test.AbstractComponentTestCase} that sets up a bridge
  * between the new Execution Context and the old XWikiContext. This allows code that uses
  * XWikiContext to be tested using this Test Case class.
- * 
+ *
  * @version: AbstractBridgedComponentTestCase.java fpichler copied from
  *           AbstractBridgedComponentTestCase.java
  * @deprecated instead use {@link AbstractComponentTest} together with static import
- * {@link CelementsTestUtils}
+ *             {@link CelementsTestUtils}
  */
 @Deprecated
 public abstract class AbstractBridgedComponentTestCase extends AbstractComponentTest {
@@ -51,27 +47,8 @@ public abstract class AbstractBridgedComponentTestCase extends AbstractComponent
     return CelementsTestUtils.getMessageToolStub();
   }
 
-  public <T> T registerComponentMock(Class<T> role) throws ComponentRepositoryException {
-    return CelementsTestUtils.registerComponentMock(role);
-  }
-
-  public <T> T registerComponentMock(Class<T> role, String hint
-      ) throws ComponentRepositoryException {
-    return CelementsTestUtils.registerComponentMock(role, hint);
-  }
-
   public <T> T createMockAndAddToDefault(final Class<T> toMock) {
     return CelementsTestUtils.createMockAndAddToDefault(toMock);
-  }
-
-  protected void replayDefault(Object... mocks) {
-    replay(CelementsTestUtils.getDefaultMocks().toArray());
-    replay(mocks);
-  }
-
-  protected void verifyDefault(Object... mocks) {
-    verify(CelementsTestUtils.getDefaultMocks().toArray());
-    verify(mocks);
   }
 
 }

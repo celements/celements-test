@@ -19,65 +19,90 @@
  */
 package com.celements.common.test;
 
-import static com.celements.common.test.CelementsTestUtils.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.io.File;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
+import org.xwiki.component.manager.ComponentRepositoryException;
 import org.xwiki.configuration.ConfigurationSource;
-import org.xwiki.test.AbstractComponentTestCase;
+import org.xwiki.container.ApplicationContext;
+import org.xwiki.container.Container;
+import org.xwiki.context.Execution;
+import org.xwiki.context.ExecutionContext;
+import org.xwiki.context.ExecutionContextManager;
+import org.xwiki.test.MockConfigurationSource;
 
+import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.web.Utils;
 
 /**
- * Extension of {@link org.xwiki.test.AbstractComponentTestCase} which can be used
- * together with {@link CelementsTestUtils}
+ * Extension of {@link AbstractBaseComponentTest} which prepares the Spring and XWiki testing
+ * environment.
  */
-public abstract class AbstractComponentTest extends AbstractComponentTestCase {
+public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
 
   @Before
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-
-    // Statically store the component manager in {@link Utils} to be able to access it
-    // without the context.
+  public final void setUpXWiki() throws Exception {
     Utils.setComponentManager(getComponentManager());
+    getSpringContext().getBean(Container.class)
+        .setApplicationContext(new TestXWikiApplicationContext());
+    registerMockConfigSource();
+    ExecutionContext execCtx = new ExecutionContext();
+    getSpringContext().getBean(Execution.class).setContext(execCtx);
+    getSpringContext().getBean(ExecutionContextManager.class).initialize(execCtx);
+    CelementsTestUtils.getWikiMock();
+  }
 
-    List<HintedComponent> componentList = Collections.emptyList();
-    if (this.getClass().isAnnotationPresent(ComponentList.class)) {
-      componentList = Arrays.asList(this.getClass().getAnnotation(ComponentList.class).value());
+  protected void registerMockConfigSource() throws ComponentRepositoryException {
+    MockConfigurationSource cfgSrc = new MockConfigurationSource();
+    for (String hint : getConfigSourceHints()) {
+      registerComponentMock(ConfigurationSource.class, hint, cfgSrc);
     }
-    Map<Class<?>, List<String>> componentClassMap = new HashMap<>();
-    for (HintedComponent hc : componentList) {
-      if (!componentClassMap.containsKey(hc.clazz())) {
-        componentClassMap.put(hc.clazz(), new ArrayList<String>());
-      }
-      componentClassMap.get(hc.clazz()).add(hc.hint());
-    }
+  }
 
-    // initialize celements configuration source mock
-    if (!(componentClassMap.containsKey(ConfigurationSource.class) && componentClassMap.get(
-        ConfigurationSource.class).contains("celementsproperties"))) {
-      initComponentMock(ConfigurationSource.class, "celementsproperties");
-    }
-
-    // initialize context and wiki mock
-    getWikiMock();
+  protected List<String> getConfigSourceHints() {
+    return ImmutableList.of("default", "all", "wiki", "fromwiki", "allproperties", "properties",
+        "xwikiproperties", "celementsproperties");
   }
 
   @After
-  @Override
-  public void tearDown() throws Exception {
-    getDefaultMocks().clear();
-    Utils.setComponentManager(null);
-    super.tearDown();
+  public final void tearDownXWiki() throws Exception {
+    try {
+      CelementsTestUtils.getContext().clear();
+      CelementsTestUtils.getContext().setWiki(null);
+      getSpringContext().getBean(Execution.class).removeContext();
+    } finally {
+      Utils.setComponentManager(null);
+    }
+  }
+
+  public MockConfigurationSource getConfigurationSource() {
+    return getSpringContext().getBean(MockConfigurationSource.class);
+  }
+
+  public static class TestXWikiApplicationContext implements ApplicationContext {
+
+    @Override
+    public URL getResource(String resourceName) throws MalformedURLException {
+      if (resourceName.contains("xwiki.properties")) {
+        return this.getClass().getClassLoader().getResource("xwiki.properties");
+      }
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public InputStream getResourceAsStream(String resourceName) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public File getTemporaryDirectory() {
+      throw new UnsupportedOperationException();
+    }
   }
 
 }

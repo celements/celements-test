@@ -1,4 +1,5 @@
 package com.celements.common.test;
+
 /*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -21,38 +22,25 @@ package com.celements.common.test;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.xwiki.cache.CacheManager;
 import org.xwiki.cache.config.CacheConfiguration;
+import org.xwiki.cache.eviction.EntryEvictionConfiguration;
 import org.xwiki.cache.eviction.LRUEvictionConfiguration;
 import org.xwiki.model.reference.EntityReferenceSerializer;
 
 import com.celements.common.test.service.ITestServiceRole;
 import com.celements.common.test.service.InjectedTestService;
-import com.xpn.xwiki.XWiki;
-import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.render.XWikiRenderingEngine;
 import com.xpn.xwiki.web.Utils;
 
 public class AbstractBridgedComponentTestCaseTest extends AbstractBridgedComponentTestCase {
 
-  private XWikiContext context;
-  private XWiki xwiki;
-
-  @Before
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    context = getContext();
-    xwiki = getWikiMock();
-  }
-
   @Test
   public void testDefaultMocks() {
-    assertNotNull(context);
-    assertNotNull(xwiki);
-    assertSame(context.getWiki(), xwiki);
+    assertNotNull(getContext());
+    assertNotNull(getWikiMock());
+    assertSame(getContext().getWiki(), getWikiMock());
   }
 
   @Test
@@ -69,7 +57,7 @@ public class AbstractBridgedComponentTestCaseTest extends AbstractBridgedCompone
     configuration.setConfigurationId("xwiki.renderingcache");
     LRUEvictionConfiguration lru = new LRUEvictionConfiguration();
     lru.setMaxEntries(100);
-    configuration.put(LRUEvictionConfiguration.CONFIGURATIONID, lru);
+    configuration.put(EntryEvictionConfiguration.CONFIGURATIONID, lru);
     replayDefault();
     assertNotNull(Utils.getComponent(CacheManager.class).createNewCache(configuration));
     verifyDefault();
@@ -79,15 +67,15 @@ public class AbstractBridgedComponentTestCaseTest extends AbstractBridgedCompone
   public void test() {
     XWikiRenderingEngine renderingEngine = createMockAndAddToDefault(
         XWikiRenderingEngine.class);
-    expect(xwiki.getRenderingEngine()).andReturn(renderingEngine).anyTimes();
-    expect(renderingEngine.interpretText(eq("link"), same(context.getDoc()),
-        same(context))).andReturn("rendered link");
+    expect(getWikiMock().getRenderingEngine()).andReturn(renderingEngine).anyTimes();
+    expect(renderingEngine.interpretText(eq("link"), same(getContext().getDoc()),
+        same(getContext()))).andReturn("rendered link");
     replayDefault();
-    assertNotNull(xwiki.getRenderingEngine());
+    assertNotNull(getWikiMock().getRenderingEngine());
     assertEquals("renderingEngine schould get set to replay by replayDefault because it"
         + " is created with createMockAndAddToDefault.", "rendered link",
-        xwiki.getRenderingEngine().interpretText("link",
-        context.getDoc(), context));
+        getWikiMock().getRenderingEngine().interpretText("link",
+            getContext().getDoc(), getContext()));
     verifyDefault();
   }
 
@@ -128,8 +116,10 @@ public class AbstractBridgedComponentTestCaseTest extends AbstractBridgedCompone
     ITestServiceRole testServiceMock = registerComponentMock(ITestServiceRole.class,
         "injected");
     assertSame(testServiceMock, Utils.getComponent(ITestServiceRole.class, "injected"));
-    this.tearDown();
-    this.setUp();
+    this.tearDownXWiki();
+    this.tearDownSpring();
+    this.setUpSpring();
+    this.setUpXWiki();
     assertNotNull(Utils.getComponent(ITestServiceRole.class, "injected"));
     assertNotSame(testServiceMock, Utils.getComponent(ITestServiceRole.class, "injected"));
   }
