@@ -2,39 +2,36 @@ package com.celements.common.test;
 
 import static com.google.common.base.Preconditions.*;
 
-import java.util.List;
-
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.xwiki.component.descriptor.ComponentRole;
 import org.xwiki.component.descriptor.DefaultComponentDescriptor;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.component.manager.ComponentRepositoryException;
-import org.xwiki.component.spring.XWikiSpringConfig;
 
-import com.celements.spring.CelSpringConfig;
 import com.celements.spring.context.CelSpringContext;
-import com.google.common.collect.ImmutableList;
 
 /**
  * Prepares the Spring testing environment.
  */
 public abstract class AbstractBaseComponentTest {
 
-  private CelSpringContext context;
+  private ConfigurableApplicationContext context;
 
   @Before
   public final void setUpSpring() throws Exception {
     checkState(context == null);
-    context = new CelSpringContext(getSpringConfigs());
+    context = createSpringContext();
+    context.refresh();
   }
 
   /**
-   * Entry point for adding additional configs like {@link CelSpringConfig}.
+   * Entry point for initialising a different spring context.
    */
-  protected List<Class<?>> getSpringConfigs() {
-    return ImmutableList.of(XWikiSpringConfig.class, CelSpringConfig.class);
+  protected ConfigurableApplicationContext createSpringContext() {
+    return new CelSpringContext();
   }
 
   @After
@@ -45,7 +42,7 @@ public abstract class AbstractBaseComponentTest {
     context = null;
   }
 
-  public CelSpringContext getSpringContext() {
+  public ConfigurableApplicationContext getSpringContext() {
     checkState(context != null);
     return context;
   }

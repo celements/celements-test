@@ -27,6 +27,8 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.mock.web.MockServletContext;
 import org.xwiki.component.manager.ComponentRepositoryException;
 import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.container.ApplicationContext;
@@ -36,6 +38,7 @@ import org.xwiki.context.ExecutionContext;
 import org.xwiki.context.ExecutionContextManager;
 import org.xwiki.test.MockConfigurationSource;
 
+import com.celements.servlet.CelSpringWebContext;
 import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.web.Utils;
 
@@ -44,6 +47,13 @@ import com.xpn.xwiki.web.Utils;
  * environment.
  */
 public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
+
+  @Override
+  protected ConfigurableApplicationContext createSpringContext() {
+    CelSpringWebContext context = new CelSpringWebContext();
+    context.setServletContext(new MockServletContext());
+    return context;
+  }
 
   @Before
   public final void setUpXWiki() throws Exception {
