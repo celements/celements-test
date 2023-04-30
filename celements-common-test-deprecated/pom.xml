@@ -37,6 +37,14 @@
     <tag>HEAD</tag>
   </scm>
   <dependencies>
+
+    <dependency>
+      <groupId>com.celements</groupId>
+      <artifactId>celements-shared-tests</artifactId>
+      <version>6.0-SNAPSHOT</version>
+    </dependency>
+
+    <!-- Celements -->
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-commons</artifactId>
@@ -63,22 +71,24 @@
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
+      <artifactId>celements-observation</artifactId>
+      <version>6.0-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.celements</groupId>
       <artifactId>celements-servlet</artifactId>
       <version>6.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
-      <artifactId>celements-shared-tests</artifactId>
-      <version>6.0-SNAPSHOT</version>
-    </dependency>
-    <!-- Celements-XWiki -->
-    <dependency>
-      <groupId>com.celements</groupId>
       <artifactId>celements-xwiki-core</artifactId>
       <version>6.0-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
+
+    <!-- XWiki -->
     <dependency>
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-core-cache-api</artifactId>
@@ -107,16 +117,6 @@
     <dependency>
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-core-rendering-macro-wikibridge</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-core-observation-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-core-observation-remote</artifactId>
       <scope>provided</scope>
     </dependency>
 
