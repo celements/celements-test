@@ -60,7 +60,7 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
 
   @Override
   protected void beforeSpringContextRefresh() {
-    getSpringContext().setServletContext(new MockServletContext(getSpringContext()));
+    getSpringContext().setServletContext(new MockServletContext());
   }
 
   @Before
