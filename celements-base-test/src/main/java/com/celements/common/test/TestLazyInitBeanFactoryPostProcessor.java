@@ -6,11 +6,13 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.core.Ordered;
+import org.springframework.stereotype.Component;
 
 /**
  * Set all beans in the test context to lazy load if not already set. This is useful to avoid eager
  * inits of components never used in a unit test.
  */
+@Component
 public final class TestLazyInitBeanFactoryPostProcessor
     implements BeanFactoryPostProcessor, Ordered {
 
