@@ -70,15 +70,8 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   }
 
   @Override
-  protected void beforeSpringContextRefresh() throws ComponentRepositoryException {
+  protected void beforeSpringContextRefresh() {
     getSpringContext().setServletContext(new MockServletContext());
-    registerComponentMock(XWikiStubContextProvider.class, "default", () -> {
-      XWikiContext context = new XWikiContext();
-      context.setDatabase(DEFAULT_DB);
-      context.setMainXWiki(DEFAULT_MAIN_WIKI);
-      context.setLanguage(DEFAULT_LANG);
-      return context;
-    });
   }
 
   @Before
@@ -86,6 +79,13 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     Utils.setComponentManager(getComponentManager());
     getBeanFactory().getBean(Container.class)
         .setApplicationContext(new TestXWikiApplicationContext());
+    registerComponentMock(XWikiStubContextProvider.class, "default", () -> {
+      XWikiContext context = new XWikiContext();
+      context.setDatabase(DEFAULT_DB);
+      context.setMainXWiki(DEFAULT_MAIN_WIKI);
+      context.setLanguage(DEFAULT_LANG);
+      return context;
+    });
     registerMockConfigSource();
     ExecutionContext execCtx = new ExecutionContext();
     getBeanFactory().getBean(Execution.class).setContext(execCtx);
