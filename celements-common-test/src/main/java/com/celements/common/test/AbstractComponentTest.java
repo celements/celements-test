@@ -35,7 +35,6 @@ import org.xwiki.container.ApplicationContext;
 import org.xwiki.container.Container;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
-import org.xwiki.context.ExecutionContextManager;
 import org.xwiki.test.MockConfigurationSource;
 
 import com.celements.servlet.CelSpringWebContext;
@@ -71,7 +70,6 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     registerMockConfigSource();
     ExecutionContext execCtx = new ExecutionContext();
     getBeanFactory().getBean(Execution.class).setContext(execCtx);
-    getBeanFactory().getBean(ExecutionContextManager.class).initialize(execCtx);
     CelementsTestUtils.getWikiMock();
   }
 
