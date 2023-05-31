@@ -27,8 +27,8 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.xwiki.component.manager.ComponentRepositoryException;
 import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.container.ApplicationContext;
@@ -49,21 +49,29 @@ import com.xpn.xwiki.web.Utils;
 public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
 
   @Override
-  protected ConfigurableApplicationContext createSpringContext() {
-    CelSpringWebContext context = new CelSpringWebContext();
-    context.setServletContext(new MockServletContext());
-    return context;
+  protected ConfigurableWebApplicationContext createSpringContext() {
+    return new CelSpringWebContext();
+  }
+
+  @Override
+  public ConfigurableWebApplicationContext getSpringContext() {
+    return (ConfigurableWebApplicationContext) super.getSpringContext();
+  }
+
+  @Override
+  protected void beforeSpringContextRefresh() {
+    getSpringContext().setServletContext(new MockServletContext());
   }
 
   @Before
   public final void setUpXWiki() throws Exception {
     Utils.setComponentManager(getComponentManager());
-    getSpringContext().getBean(Container.class)
+    getBeanFactory().getBean(Container.class)
         .setApplicationContext(new TestXWikiApplicationContext());
     registerMockConfigSource();
     ExecutionContext execCtx = new ExecutionContext();
-    getSpringContext().getBean(Execution.class).setContext(execCtx);
-    getSpringContext().getBean(ExecutionContextManager.class).initialize(execCtx);
+    getBeanFactory().getBean(Execution.class).setContext(execCtx);
+    getBeanFactory().getBean(ExecutionContextManager.class).initialize(execCtx);
     CelementsTestUtils.getWikiMock();
   }
 
@@ -84,14 +92,14 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     try {
       CelementsTestUtils.getContext().clear();
       CelementsTestUtils.getContext().setWiki(null);
-      getSpringContext().getBean(Execution.class).removeContext();
+      getBeanFactory().getBean(Execution.class).removeContext();
     } finally {
       Utils.setComponentManager(null);
     }
   }
 
   public MockConfigurationSource getConfigurationSource() {
-    return getSpringContext().getBean(MockConfigurationSource.class);
+    return getBeanFactory().getBean(MockConfigurationSource.class);
   }
 
   public static class TestXWikiApplicationContext implements ApplicationContext {

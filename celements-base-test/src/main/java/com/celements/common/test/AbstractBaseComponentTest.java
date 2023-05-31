@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.*;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.xwiki.component.descriptor.ComponentRole;
 import org.xwiki.component.descriptor.DefaultComponentDescriptor;
@@ -24,6 +25,7 @@ public abstract class AbstractBaseComponentTest {
   public final void setUpSpring() throws Exception {
     checkState(context == null);
     context = createSpringContext();
+    beforeSpringContextRefresh();
     context.refresh();
   }
 
@@ -33,6 +35,11 @@ public abstract class AbstractBaseComponentTest {
   protected ConfigurableApplicationContext createSpringContext() {
     return new CelSpringContext();
   }
+
+  /**
+   * Entry point for handling logic pre context refresh.
+   */
+  protected void beforeSpringContextRefresh() {}
 
   @After
   public final void tearDownSpring() throws Exception {
@@ -47,12 +54,17 @@ public abstract class AbstractBaseComponentTest {
     return context;
   }
 
+  public ConfigurableListableBeanFactory getBeanFactory() {
+    checkState(context != null);
+    return context.getBeanFactory();
+  }
+
   public ComponentManager getComponentManager() {
-    return getSpringContext().getBean(ComponentManager.class);
+    return getBeanFactory().getBean(ComponentManager.class);
   }
 
   public CelDefaultMocks getDefaultMocks() {
-    return getSpringContext().getBean(CelDefaultMocks.class);
+    return getBeanFactory().getBean(CelDefaultMocks.class);
   }
 
   public <T> T createDefaultMock(final Class<T> toMock) {
