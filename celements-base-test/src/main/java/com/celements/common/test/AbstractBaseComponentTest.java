@@ -32,14 +32,14 @@ public abstract class AbstractBaseComponentTest {
   /**
    * Entry point for initialising a different spring context.
    */
-  protected ConfigurableApplicationContext createSpringContext() {
+  protected ConfigurableApplicationContext createSpringContext() throws Exception {
     return new CelSpringContext();
   }
 
   /**
    * Entry point for handling logic pre context refresh.
    */
-  protected void beforeSpringContextRefresh() {}
+  protected void beforeSpringContextRefresh() throws Exception {}
 
   @After
   public final void tearDownSpring() throws Exception {
