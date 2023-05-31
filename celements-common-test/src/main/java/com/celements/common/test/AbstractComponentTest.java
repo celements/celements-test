@@ -35,10 +35,12 @@ import org.xwiki.container.ApplicationContext;
 import org.xwiki.container.Container;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
+import org.xwiki.context.ExecutionContextManager;
 import org.xwiki.test.MockConfigurationSource;
 
 import com.celements.servlet.CelSpringWebContext;
 import com.google.common.collect.ImmutableList;
+import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.web.Utils;
 
 /**
@@ -70,7 +72,9 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     registerMockConfigSource();
     ExecutionContext execCtx = new ExecutionContext();
     getBeanFactory().getBean(Execution.class).setContext(execCtx);
-    CelementsTestUtils.getWikiMock();
+    XWiki wikiMock = createDefaultMock(XWiki.class);
+    CelementsTestUtils.getContext().setWiki(wikiMock);
+    getBeanFactory().getBean(ExecutionContextManager.class).initialize(execCtx);
   }
 
   protected void registerMockConfigSource() throws ComponentRepositoryException {
