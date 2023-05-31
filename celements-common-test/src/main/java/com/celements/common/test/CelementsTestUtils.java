@@ -70,7 +70,7 @@ public final class CelementsTestUtils {
   }
 
   public static XWiki getWikiMock() {
-    XWiki wikiMock = getContext().getWiki();
+    XWiki wikiMock = getDefaultMocks().get(XWiki.class);
     if (wikiMock == null) {
       wikiMock = createMockAndAddToDefault(XWiki.class);
       getContext().setWiki(wikiMock);
