@@ -75,7 +75,7 @@ public final class CelementsTestUtils {
   }
 
   /**
-   * @deprecated since 6.0 instead use {@link AbstractComponentTest#getXWikiContext()}
+   * @deprecated since 6.0 instead use {@link AbstractComponentTest#getXContext()}
    */
   @Deprecated
   public static XWikiContext getContext() {

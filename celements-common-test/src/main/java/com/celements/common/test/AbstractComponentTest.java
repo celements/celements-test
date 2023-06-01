@@ -90,7 +90,7 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     ExecutionContext execCtx = new ExecutionContext();
     getBeanFactory().getBean(Execution.class).setContext(execCtx);
     getBeanFactory().getBean(ExecutionContextManager.class).initialize(execCtx);
-    XWikiContext xwikiContext = getXWikiContext();
+    XWikiContext xwikiContext = getXContext();
     setLocaleAndMsgTool(xwikiContext, execCtx);
     xwikiContext.setWiki(createDefaultMock(XWiki.class));
   }
@@ -127,8 +127,8 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   @After
   public final void tearDownXWiki() throws Exception {
     try {
-      getXWikiContext().clear();
-      getXWikiContext().setWiki(null);
+      getXContext().clear();
+      getXContext().setWiki(null);
       getBeanFactory().getBean(Execution.class).removeContext();
     } finally {
       Utils.setComponentManager(null);
@@ -139,7 +139,7 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     return getBeanFactory().getBean(MockConfigurationSource.class);
   }
 
-  public XWikiContext getXWikiContext() {
+  public XWikiContext getXContext() {
     return (XWikiContext) getBeanFactory().getBean(Execution.class).getContext()
         .getProperty(XWikiContext.EXECUTIONCONTEXT_KEY);
   }
