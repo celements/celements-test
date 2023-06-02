@@ -26,6 +26,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.velocity.VelocityContext;
 import org.junit.After;
@@ -87,12 +88,15 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
       return context;
     });
     registerMockConfigSource();
+    XWiki xwikiMock = createDefaultMock(XWiki.class);
+    getSpringContext().getServletContext()
+        .setAttribute(XWiki.CONTEXT_KEY, CompletableFuture.completedFuture(xwikiMock));
     ExecutionContext execCtx = new ExecutionContext();
     getBeanFactory().getBean(Execution.class).setContext(execCtx);
     getBeanFactory().getBean(ExecutionContextManager.class).initialize(execCtx);
     XWikiContext xwikiContext = getXContext();
     setLocaleAndMsgTool(xwikiContext, execCtx);
-    xwikiContext.setWiki(createDefaultMock(XWiki.class));
+    xwikiContext.setWiki(xwikiMock);
   }
 
   protected void registerMockConfigSource() throws ComponentRepositoryException {
