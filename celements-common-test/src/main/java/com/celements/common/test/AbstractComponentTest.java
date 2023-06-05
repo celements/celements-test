@@ -80,7 +80,7 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     Utils.setComponentManager(getComponentManager());
     getBeanFactory().getBean(Container.class)
         .setApplicationContext(new TestXWikiApplicationContext());
-    registerComponentMock(XWikiStubContextProvider.class, "default", () -> {
+    registerComponentMock(XWikiStubContextProvider.class, "default", execCtx -> {
       XWikiContext context = new XWikiContext();
       context.setDatabase(DEFAULT_DB);
       context.setMainXWiki(DEFAULT_MAIN_WIKI);
@@ -89,8 +89,8 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     });
     registerMockConfigSource();
     XWiki xwikiMock = createDefaultMock(XWiki.class);
-    getSpringContext().getServletContext()
-        .setAttribute(XWiki.CONTEXT_KEY, CompletableFuture.completedFuture(xwikiMock));
+    getSpringContext().getServletContext().setAttribute(XWiki.SERVLET_CONTEXT_KEY,
+        CompletableFuture.completedFuture(xwikiMock));
     ExecutionContext execCtx = new ExecutionContext();
     getBeanFactory().getBean(Execution.class).setContext(execCtx);
     getBeanFactory().getBean(ExecutionContextManager.class).initialize(execCtx);

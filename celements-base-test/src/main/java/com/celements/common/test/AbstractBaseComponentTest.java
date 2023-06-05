@@ -95,9 +95,7 @@ public abstract class AbstractBaseComponentTest {
   @SuppressWarnings("unchecked")
   public <T> T registerComponentMock(Class<T> role, String hint, T instance)
       throws ComponentRepositoryException {
-    DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<>();
-    descriptor.setRole(role);
-    descriptor.setRoleHint(hint);
+    DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<>(role, hint);
     if (instance != null) {
       descriptor.setImplementation((Class<T>) instance.getClass());
     }
