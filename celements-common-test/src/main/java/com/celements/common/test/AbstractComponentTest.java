@@ -24,7 +24,11 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
+import org.apache.velocity.VelocityContext;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.mock.web.MockServletContext;
@@ -40,13 +44,21 @@ import org.xwiki.test.MockConfigurationSource;
 
 import com.celements.servlet.CelSpringWebContext;
 import com.google.common.collect.ImmutableList;
+import com.xpn.xwiki.XWiki;
+import com.xpn.xwiki.XWikiContext;
+import com.xpn.xwiki.util.XWikiStubContextProvider;
 import com.xpn.xwiki.web.Utils;
+import com.xpn.xwiki.web.XWikiMessageTool;
 
 /**
  * Extension of {@link AbstractBaseComponentTest} which prepares the Spring and XWiki testing
  * environment.
  */
 public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
+
+  public static final String DEFAULT_DB = "xwikidb";
+  public static final String DEFAULT_MAIN_WIKI = "xwikiWiki";
+  public static final String DEFAULT_LANG = "de";
 
   @Override
   protected ConfigurableWebApplicationContext createSpringContext() {
@@ -68,11 +80,23 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     Utils.setComponentManager(getComponentManager());
     getBeanFactory().getBean(Container.class)
         .setApplicationContext(new TestXWikiApplicationContext());
+    registerComponentMock(XWikiStubContextProvider.class, "default", execCtx -> {
+      XWikiContext context = new XWikiContext();
+      context.setDatabase(DEFAULT_DB);
+      context.setMainXWiki(DEFAULT_MAIN_WIKI);
+      context.setLanguage(DEFAULT_LANG);
+      return context;
+    });
     registerMockConfigSource();
+    XWiki xwikiMock = createDefaultMock(XWiki.class);
+    getSpringContext().getServletContext().setAttribute(XWiki.SERVLET_CONTEXT_KEY,
+        CompletableFuture.completedFuture(xwikiMock));
     ExecutionContext execCtx = new ExecutionContext();
     getBeanFactory().getBean(Execution.class).setContext(execCtx);
     getBeanFactory().getBean(ExecutionContextManager.class).initialize(execCtx);
-    CelementsTestUtils.getWikiMock();
+    XWikiContext xwikiContext = getXContext();
+    setLocaleAndMsgTool(xwikiContext, execCtx);
+    xwikiContext.setWiki(xwikiMock);
   }
 
   protected void registerMockConfigSource() throws ComponentRepositoryException {
@@ -87,11 +111,28 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
         "xwikiproperties", "celementsproperties");
   }
 
+  private XWikiContext setLocaleAndMsgTool(XWikiContext context, ExecutionContext execCtx) {
+    Locale locale = new Locale(context.getLanguage());
+    ResourceBundle bundle = ResourceBundle.getBundle("ApplicationResources", locale);
+    if (bundle == null) {
+      bundle = ResourceBundle.getBundle("ApplicationResources");
+    }
+    XWikiMessageTool msg = new TestMessageTool(bundle, context);
+    context.put("msg", msg);
+    context.put("locale", locale);
+    VelocityContext vcontext = (VelocityContext) execCtx.getProperty("velocityContext");
+    if (vcontext != null) {
+      vcontext.put("msg", msg);
+      vcontext.put("locale", locale);
+    }
+    return context;
+  }
+
   @After
   public final void tearDownXWiki() throws Exception {
     try {
-      CelementsTestUtils.getContext().clear();
-      CelementsTestUtils.getContext().setWiki(null);
+      getXContext().clear();
+      getXContext().setWiki(null);
       getBeanFactory().getBean(Execution.class).removeContext();
     } finally {
       Utils.setComponentManager(null);
@@ -100,6 +141,11 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
 
   public MockConfigurationSource getConfigurationSource() {
     return getBeanFactory().getBean(MockConfigurationSource.class);
+  }
+
+  public XWikiContext getXContext() {
+    return (XWikiContext) getBeanFactory().getBean(Execution.class).getContext()
+        .getProperty(XWikiContext.EXECUTIONCONTEXT_KEY);
   }
 
   public static class TestXWikiApplicationContext implements ApplicationContext {

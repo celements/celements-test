@@ -32,14 +32,14 @@ public abstract class AbstractBaseComponentTest {
   /**
    * Entry point for initialising a different spring context.
    */
-  protected ConfigurableApplicationContext createSpringContext() {
+  protected ConfigurableApplicationContext createSpringContext() throws Exception {
     return new CelSpringContext();
   }
 
   /**
    * Entry point for handling logic pre context refresh.
    */
-  protected void beforeSpringContextRefresh() {}
+  protected void beforeSpringContextRefresh() throws Exception {}
 
   @After
   public final void tearDownSpring() throws Exception {
@@ -95,9 +95,7 @@ public abstract class AbstractBaseComponentTest {
   @SuppressWarnings("unchecked")
   public <T> T registerComponentMock(Class<T> role, String hint, T instance)
       throws ComponentRepositoryException {
-    DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<>();
-    descriptor.setRole(role);
-    descriptor.setRoleHint(hint);
+    DefaultComponentDescriptor<T> descriptor = new DefaultComponentDescriptor<>(role, hint);
     if (instance != null) {
       descriptor.setImplementation((Class<T>) instance.getClass());
     }

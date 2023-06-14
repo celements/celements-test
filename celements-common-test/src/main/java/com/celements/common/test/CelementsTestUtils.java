@@ -3,22 +3,18 @@ package com.celements.common.test;
 import static com.google.common.base.Preconditions.*;
 import static org.easymock.EasyMock.*;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.ResourceBundle;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-import org.apache.velocity.VelocityContext;
 import org.easymock.EasyMock;
 import org.xwiki.component.descriptor.ComponentRole;
 import org.xwiki.component.descriptor.DefaultComponentDescriptor;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.component.manager.ComponentRepositoryException;
 import org.xwiki.context.Execution;
-import org.xwiki.context.ExecutionContext;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.test.MockConfigurationSource;
 
@@ -36,10 +32,6 @@ import com.xpn.xwiki.web.Utils;
 import com.xpn.xwiki.web.XWikiMessageTool;
 
 public final class CelementsTestUtils {
-
-  public static final String DEFAULT_DB = "xwikidb";
-  public static final String DEFAULT_MAIN_WIKI = "xwikiWiki";
-  public static final String DEFAULT_LANG = "de";
 
   private CelementsTestUtils() {}
 
@@ -69,8 +61,12 @@ public final class CelementsTestUtils {
     return getDefaultMocks().get(mockClass);
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractBaseComponentTest#getMock(XWiki.class)}
+   */
+  @Deprecated
   public static XWiki getWikiMock() {
-    XWiki wikiMock = getContext().getWiki();
+    XWiki wikiMock = getDefaultMocks().get(XWiki.class);
     if (wikiMock == null) {
       wikiMock = createMockAndAddToDefault(XWiki.class);
       getContext().setWiki(wikiMock);
@@ -78,36 +74,13 @@ public final class CelementsTestUtils {
     return wikiMock;
   }
 
+  /**
+   * @deprecated since 6.0 instead use {@link AbstractComponentTest#getXContext()}
+   */
+  @Deprecated
   public static XWikiContext getContext() {
-    ExecutionContext executionContext = Utils.getComponent(Execution.class).getContext();
-    XWikiContext context = (XWikiContext) executionContext
+    return (XWikiContext) Utils.getComponent(Execution.class).getContext()
         .getProperty(XWikiContext.EXECUTIONCONTEXT_KEY);
-    if (context == null) {
-      context = new XWikiContext();
-      context.setDatabase(DEFAULT_DB);
-      context.setMainXWiki(DEFAULT_MAIN_WIKI);
-      context.setLanguage(DEFAULT_LANG);
-      Locale locale = new Locale(context.getLanguage());
-      ResourceBundle bundle = ResourceBundle.getBundle("ApplicationResources", locale);
-      if (bundle == null) {
-        bundle = ResourceBundle.getBundle("ApplicationResources");
-      }
-      XWikiMessageTool msg = new TestMessageTool(bundle, context);
-      context.put("msg", msg);
-      VelocityContext vcontext = ((VelocityContext) context.get("vcontext"));
-      if (vcontext != null) {
-        vcontext.put("msg", msg);
-        vcontext.put("locale", locale);
-      }
-      @SuppressWarnings("unchecked")
-      Map<String, Object> gcontext = (Map<String, Object>) context.get("gcontext");
-      if (gcontext != null) {
-        gcontext.put("msg", msg);
-        gcontext.put("locale", locale);
-      }
-      executionContext.setProperty(XWikiContext.EXECUTIONCONTEXT_KEY, context);
-    }
-    return context;
   }
 
   public static XWikiStoreInterface getStoreMock() throws ComponentRepositoryException {
