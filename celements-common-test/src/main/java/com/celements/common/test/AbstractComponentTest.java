@@ -31,6 +31,7 @@ import java.util.concurrent.CompletableFuture;
 import org.apache.velocity.VelocityContext;
 import org.junit.After;
 import org.junit.Before;
+import org.springframework.beans.BeansException;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.xwiki.component.manager.ComponentRepositoryException;
@@ -42,6 +43,7 @@ import org.xwiki.context.ExecutionContext;
 import org.xwiki.context.ExecutionContextManager;
 import org.xwiki.test.MockConfigurationSource;
 
+import com.celements.execution.XWikiExecutionProp;
 import com.celements.servlet.CelSpringWebContext;
 import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.XWiki;
@@ -73,6 +75,7 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   @Override
   protected void beforeSpringContextRefresh() {
     getSpringContext().setServletContext(new MockServletContext());
+    getSpringContext().getEnvironment().setActiveProfiles("test");
   }
 
   @Before
@@ -129,11 +132,13 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   }
 
   @After
-  public final void tearDownXWiki() throws Exception {
+  public final void tearDownXWiki() {
     try {
       getXContext().clear();
       getXContext().setWiki(null);
       getBeanFactory().getBean(Execution.class).removeContext();
+    } catch (BeansException e) {
+      // setup failed already
     } finally {
       Utils.setComponentManager(null);
     }
@@ -144,8 +149,8 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   }
 
   public XWikiContext getXContext() {
-    return (XWikiContext) getBeanFactory().getBean(Execution.class).getContext()
-        .getProperty(XWikiContext.EXECUTIONCONTEXT_KEY);
+    return getBeanFactory().getBean(Execution.class).getContext()
+        .get(XWikiExecutionProp.XWIKI_CONTEXT).orElseThrow();
   }
 
   public static class TestXWikiApplicationContext implements ApplicationContext {
