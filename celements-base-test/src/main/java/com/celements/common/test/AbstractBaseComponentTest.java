@@ -25,6 +25,7 @@ public abstract class AbstractBaseComponentTest {
   public final void setUpSpring() throws Exception {
     checkState(context == null);
     context = createSpringContext();
+    context.getEnvironment().setActiveProfiles("test");
     beforeSpringContextRefresh();
     context.refresh();
   }
