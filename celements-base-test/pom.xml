@@ -28,13 +28,13 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>celements-base-tests</artifactId>
-  <version>6.0</version>
+  <version>6.1-SNAPSHOT</version>
   <description>Celements Base Tests</description>
   <scm>
     <connection>scm:git:git@github.com:celements/celements-shared-tests.git</connection>
     <developerConnection>scm:git:git@github.com:celements/celements-shared-tests.git</developerConnection>
     <url>https://github.com/celements/celements-shared-tests/celements-base-test</url>
-    <tag>celements-base-tests-6.0</tag>
+    <tag>HEAD</tag>
   </scm>
   <dependencies>
 
