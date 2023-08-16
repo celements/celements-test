@@ -24,11 +24,11 @@
   <parent>
     <groupId>com.celements</groupId>
     <artifactId>base-pom</artifactId>
-    <version>6.0-SNAPSHOT</version>
+    <version>6.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>celements-base-tests</artifactId>
-  <version>6.0-SNAPSHOT</version>
+  <version>6.1-SNAPSHOT</version>
   <description>Celements Base Tests</description>
   <scm>
     <connection>scm:git:git@github.com:celements/celements-shared-tests.git</connection>
@@ -42,7 +42,7 @@
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-component</artifactId>
-      <version>6.0-SNAPSHOT</version>
+      <version>6.0</version>
     </dependency>
 
     <!-- Spring -->
@@ -75,7 +75,7 @@
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-commons</artifactId>
-      <version>6.0-SNAPSHOT</version>
+      <version>6.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
