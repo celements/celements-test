@@ -45,6 +45,7 @@ import org.xwiki.test.MockConfigurationSource;
 
 import com.celements.execution.XWikiExecutionProp;
 import com.celements.servlet.CelSpringWebContext;
+import com.celements.spring.context.SpringContextProvider;
 import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
@@ -75,6 +76,11 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   @Override
   protected void beforeSpringContextRefresh() {
     getSpringContext().setServletContext(new MockServletContext());
+  }
+
+  @Before
+  public final void setUpApplicationContext() {
+    getBeanFactory().getBean(SpringContextProvider.class).setApplicationContext(getSpringContext());
   }
 
   @Before
