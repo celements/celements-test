@@ -11,8 +11,7 @@ import com.xpn.xwiki.web.Utils;
 public class AbstractComponentTestCase_MockConfigSource_Test extends AbstractComponentTest {
 
   @Before
-  public void prepare() throws Exception {
-  }
+  public void prepare() throws Exception {}
 
   @Test
   public void test_getCelConfigSource_mock() {
