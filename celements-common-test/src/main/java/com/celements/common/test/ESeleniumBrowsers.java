@@ -20,25 +20,24 @@
 package com.celements.common.test;
 
 public enum ESeleniumBrowsers {
-  
-  Firefox("*firefox"),
-  InternetExplorer("*iexplore");
-  
+
+  Firefox("*firefox"), InternetExplorer("*iexplore");
+
   private String _browserCmd;
 
   private ESeleniumBrowsers(String browserCmd) {
     this._browserCmd = browserCmd;
   }
-  
+
   public String getBrowserCmd() {
     return _browserCmd;
   }
-  
+
   public static ESeleniumBrowsers getForBrowserCmd(String browserCmd) {
     if (Firefox.getBrowserCmd().equals(browserCmd)) {
       return Firefox;
     } else if (InternetExplorer.getBrowserCmd().equals(browserCmd)) {
-     return InternetExplorer; 
+      return InternetExplorer;
     } else {
       throw new IllegalArgumentException("Unknown BrowserCmd " + browserCmd);
     }
