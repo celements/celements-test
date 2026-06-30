@@ -23,12 +23,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>com.celements</groupId>
-    <artifactId>base-pom</artifactId>
+    <artifactId>celements-parent</artifactId>
     <version>7.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>celements-shared-tests</artifactId>
-  <version>7.1-SNAPSHOT</version>
   <description>Celements Shared Tests</description>
   <scm>
     <connection>scm:git:git@github.com:celements/celements-shared-tests.git</connection>
@@ -41,43 +40,36 @@
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-base-tests</artifactId>
-      <version>7.1-SNAPSHOT</version>
     </dependency>
     
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-commons</artifactId>
-      <version>7.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-component</artifactId>
-      <version>7.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-config-source-api</artifactId>
-      <version>7.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-reference</artifactId>
-      <version>7.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-observation</artifactId>
-      <version>7.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-servlet</artifactId>
-      <version>7.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -87,19 +79,16 @@
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-xwiki-core</artifactId>
-      <version>7.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-xwiki-velocity</artifactId>
-      <version>7.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.celements</groupId>
       <artifactId>celements-xwiki-rendering-api</artifactId>
-      <version>7.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
 
@@ -198,16 +187,12 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-java</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
     </dependency>
     <dependency>
       <groupId>org.mutabilitydetector</groupId>
