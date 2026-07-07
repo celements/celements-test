@@ -41,6 +41,7 @@ import org.xwiki.container.Container;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
 import org.xwiki.context.ExecutionContextManager;
+import org.xwiki.model.reference.WikiReference;
 import org.xwiki.test.MockConfigurationSource;
 
 import com.celements.execution.XWikiExecutionProp;
@@ -84,8 +85,9 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
         .setApplicationContext(new TestXWikiApplicationContext());
     registerComponentMock(XWikiStubContextProvider.class, "default", execCtx -> {
       XWikiContext context = new XWikiContext();
-      context.setDatabase(DEFAULT_DB);
-      context.setMainXWiki(DEFAULT_MAIN_WIKI);
+      WikiReference wikiRef = execCtx.computeIfAbsent(XWikiExecutionProp.WIKI,
+          () -> new WikiReference(DEFAULT_DB));
+      context.setDatabase(wikiRef.getName());
       context.setLanguage(DEFAULT_LANG);
       return context;
     });
