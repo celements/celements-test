@@ -88,23 +88,6 @@
       <artifactId>spring-webmvc</artifactId>
     </dependency>
 
-    <!-- Storage -->
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
-      <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-collections</groupId>
-          <artifactId>commons-collections</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>dom4j</groupId>
-          <artifactId>dom4j</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
     <!-- Authentication -->
     <dependency>
       <groupId>securityfilter</groupId>
