@@ -2,11 +2,14 @@ package com.celements.common.test;
 
 import static com.google.common.base.Preconditions.*;
 
+import java.util.List;
+
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.FullyQualifiedAnnotationBeanNameGenerator;
 import org.xwiki.component.descriptor.ComponentRole;
 import org.xwiki.component.descriptor.DefaultComponentDescriptor;
 import org.xwiki.component.manager.ComponentManager;
@@ -20,21 +23,31 @@ import com.celements.spring.context.CelSpringContext;
 public abstract class AbstractBaseComponentTest {
 
   private ConfigurableApplicationContext context;
+  private SpringContextCache.ContextLease contextLease;
 
   @Before
   public final void setUpSpring() throws Exception {
     checkState(context == null);
+    contextLease = SpringContextCache.acquire(this::initializeSpringContext);
+    context = contextLease.context();
+  }
+
+  private ConfigurableApplicationContext initializeSpringContext() throws Exception {
     context = createSpringContext();
     context.getEnvironment().setActiveProfiles("test");
     beforeSpringContextRefresh();
     context.refresh();
+    return context;
   }
 
   /**
    * Entry point for initialising a different spring context.
    */
   protected ConfigurableApplicationContext createSpringContext() throws Exception {
-    return new CelSpringContext();
+    return new CelSpringContext(
+        new GenerationAwareBeanFactory(),
+        new FullyQualifiedAnnotationBeanNameGenerator(),
+        List.of());
   }
 
   /**
@@ -44,10 +57,17 @@ public abstract class AbstractBaseComponentTest {
 
   @After
   public final void tearDownSpring() throws Exception {
-    resetDefault(); // let's reset the mocks here to avoid memory leaks into the ClassLoader
-    getDefaultMocks().clear();
-    getSpringContext().close();
-    context = null;
+    try {
+      resetDefault();
+      getDefaultMocks().clear();
+    } finally {
+      var lease = contextLease;
+      context = null;
+      contextLease = null;
+      if (lease != null) {
+        lease.close();
+      }
+    }
   }
 
   public ConfigurableApplicationContext getSpringContext() {
@@ -118,4 +138,5 @@ public abstract class AbstractBaseComponentTest {
     getDefaultMocks().stream().forEach(EasyMock::reset);
     EasyMock.reset(mocks);
   }
+
 }

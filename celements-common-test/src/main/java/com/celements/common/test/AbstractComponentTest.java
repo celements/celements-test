@@ -19,19 +19,27 @@
  */
 package com.celements.common.test;
 
+import static com.celements.execution.XWikiExecutionProp.*;
+import static com.xpn.xwiki.XWiki.*;
+import static java.util.Objects.*;
+
 import java.io.File;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
+
+import javax.servlet.ServletContext;
 
 import org.apache.velocity.VelocityContext;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.xwiki.component.manager.ComponentRepositoryException;
@@ -40,11 +48,11 @@ import org.xwiki.container.ApplicationContext;
 import org.xwiki.container.Container;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
+import org.xwiki.context.ExecutionContextException;
 import org.xwiki.context.ExecutionContextManager;
 import org.xwiki.model.reference.WikiReference;
 import org.xwiki.test.MockConfigurationSource;
 
-import com.celements.execution.XWikiExecutionProp;
 import com.celements.servlet.CelSpringWebContext;
 import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.XWiki;
@@ -52,6 +60,8 @@ import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.util.XWikiStubContextProvider;
 import com.xpn.xwiki.web.Utils;
 import com.xpn.xwiki.web.XWikiMessageTool;
+
+import one.util.streamex.StreamEx;
 
 /**
  * Extension of {@link AbstractBaseComponentTest} which prepares the Spring and XWiki testing
@@ -63,9 +73,11 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   public static final String DEFAULT_MAIN_WIKI = "xwikiWiki";
   public static final String DEFAULT_LANG = "de";
 
+  private Map<String, Object> servletContextAttributes;
+
   @Override
   protected ConfigurableWebApplicationContext createSpringContext() {
-    return new CelSpringWebContext();
+    return new GenerationAwareCelSpringWebContext();
   }
 
   @Override
@@ -80,21 +92,41 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
 
   @Before
   public final void setUpXWiki() throws Exception {
+    var servletCtx = requireNonNull(getSpringContext().getServletContext());
+    cacheServletContext(servletCtx);
     Utils.setComponentManager(getComponentManager());
-    getBeanFactory().getBean(Container.class)
-        .setApplicationContext(new TestXWikiApplicationContext());
-    registerComponentMock(XWikiStubContextProvider.class, "default", execCtx -> {
-      XWikiContext context = new XWikiContext();
-      WikiReference wikiRef = execCtx.computeIfAbsent(XWikiExecutionProp.WIKI,
-          () -> new WikiReference(DEFAULT_DB));
-      context.setDatabase(wikiRef.getName());
-      context.setLanguage(DEFAULT_LANG);
-      return context;
-    });
+    initializeContainer();
+    registerXWikiContextProvider();
     registerMockConfigSource();
     XWiki xwikiMock = createDefaultMock(XWiki.class);
-    getSpringContext().getServletContext().setAttribute(XWiki.SERVLET_CONTEXT_KEY,
-        CompletableFuture.completedFuture(xwikiMock));
+    servletCtx.setAttribute(SERVLET_CONTEXT_KEY, CompletableFuture.completedFuture(xwikiMock));
+    initializeExecutionContext(xwikiMock);
+  }
+
+  private void cacheServletContext(ServletContext servletCtx) {
+    servletContextAttributes = StreamEx.of(servletCtx.getAttributeNames())
+        .mapToEntry(servletCtx::getAttribute)
+        .toMap();
+  }
+
+  private void initializeContainer() {
+    getBeanFactory().getBean(Container.class)
+        .setApplicationContext(new TestXWikiApplicationContext());
+  }
+
+  private void registerXWikiContextProvider() throws ComponentRepositoryException {
+    registerComponentMock(XWikiStubContextProvider.class, "default", this::createXWikiContext);
+  }
+
+  private XWikiContext createXWikiContext(ExecutionContext execCtx) {
+    XWikiContext context = new XWikiContext();
+    WikiReference wikiRef = execCtx.computeIfAbsent(WIKI, () -> new WikiReference(DEFAULT_DB));
+    context.setDatabase(wikiRef.getName());
+    context.setLanguage(DEFAULT_LANG);
+    return context;
+  }
+
+  private void initializeExecutionContext(XWiki xwikiMock) throws ExecutionContextException {
     ExecutionContext execCtx = new ExecutionContext();
     getBeanFactory().getBean(Execution.class).setContext(execCtx);
     getBeanFactory().getBean(ExecutionContextManager.class).initialize(execCtx);
@@ -135,14 +167,20 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   @After
   public final void tearDownXWiki() {
     try {
-      getXContext().clear();
-      getXContext().setWiki(null);
-      getBeanFactory().getBean(Execution.class).removeContext();
+      clearXWikiContext();
     } catch (BeansException e) {
       // setup failed already
     } finally {
+      restoreServletContext();
       Utils.setComponentManager(null);
     }
+  }
+
+  private void clearXWikiContext() {
+    XWikiContext xwikiContext = getXContext();
+    xwikiContext.clear();
+    xwikiContext.setWiki(null);
+    getBeanFactory().getBean(Execution.class).removeContext();
   }
 
   public MockConfigurationSource getConfigurationSource() {
@@ -150,8 +188,7 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   }
 
   public XWikiContext getXContext() {
-    return getBeanFactory().getBean(Execution.class).getContext()
-        .get(XWikiExecutionProp.XWIKI_CONTEXT).orElseThrow();
+    return getBeanFactory().getBean(Execution.class).getContext().get(XWIKI_CONTEXT).orElseThrow();
   }
 
   public static class TestXWikiApplicationContext implements ApplicationContext {
@@ -175,4 +212,21 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
     }
   }
 
+  private void restoreServletContext() {
+    if (servletContextAttributes == null) {
+      return;
+    }
+    var servletCtx = requireNonNull(getSpringContext().getServletContext());
+    StreamEx.of(servletCtx.getAttributeNames()).forEach(servletCtx::removeAttribute);
+    servletContextAttributes.forEach(servletCtx::setAttribute);
+    servletContextAttributes = null;
+  }
+
+  private static class GenerationAwareCelSpringWebContext extends CelSpringWebContext {
+
+    @Override
+    protected DefaultListableBeanFactory createBeanFactory() {
+      return new GenerationAwareBeanFactory();
+    }
+  }
 }
