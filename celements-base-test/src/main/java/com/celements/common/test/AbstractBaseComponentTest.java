@@ -15,6 +15,7 @@ import org.xwiki.component.descriptor.DefaultComponentDescriptor;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.component.manager.ComponentRepositoryException;
 
+import com.celements.common.test.generation.GenerationAwareBeanFactory;
 import com.celements.spring.context.CelSpringContext;
 
 /**
@@ -22,20 +23,20 @@ import com.celements.spring.context.CelSpringContext;
  */
 public abstract class AbstractBaseComponentTest {
 
-  private ConfigurableApplicationContext context;
-  private SpringContextCache.ContextLease contextLease;
+  private static final SpringContextCache CACHE = new SpringContextCache();
+
+  private SpringContextCache.Lease lease;
 
   @Before
   public final void setUpSpring() throws Exception {
-    checkState(context == null);
-    contextLease = SpringContextCache.acquire(this::initializeSpringContext);
-    context = contextLease.context();
+    checkState(lease == null);
+    lease = CACHE.acquire(this::initializeSpringContext);
   }
 
   private ConfigurableApplicationContext initializeSpringContext() throws Exception {
-    context = createSpringContext();
+    var context = createSpringContext();
     context.getEnvironment().setActiveProfiles("test");
-    beforeSpringContextRefresh();
+    beforeSpringContextRefresh(context);
     context.refresh();
     return context;
   }
@@ -53,31 +54,28 @@ public abstract class AbstractBaseComponentTest {
   /**
    * Entry point for handling logic pre context refresh.
    */
-  protected void beforeSpringContextRefresh() throws Exception {}
+  protected void beforeSpringContextRefresh(ConfigurableApplicationContext context)
+      throws Exception {}
 
   @After
   public final void tearDownSpring() throws Exception {
-    try {
+    if (lease == null) {
+      return;
+    }
+    try (var closeable = lease) {
       resetDefault();
       getDefaultMocks().clear();
     } finally {
-      var lease = contextLease;
-      context = null;
-      contextLease = null;
-      if (lease != null) {
-        lease.close();
-      }
+      lease = null;
     }
   }
 
   public ConfigurableApplicationContext getSpringContext() {
-    checkState(context != null);
-    return context;
+    return checkNotNull(lease).context();
   }
 
   public ConfigurableListableBeanFactory getBeanFactory() {
-    checkState(context != null);
-    return context.getBeanFactory();
+    return getSpringContext().getBeanFactory();
   }
 
   public ComponentManager getComponentManager() {

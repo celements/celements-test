@@ -1,119 +1,105 @@
 package com.celements.common.test;
 
 import static com.celements.common.MoreObjectsCel.*;
+import static java.util.Objects.*;
 
+import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.springframework.context.ConfigurableApplicationContext;
 
 import com.celements.common.lambda.LambdaExceptionUtil.ThrowingSupplier;
+import com.celements.common.test.generation.GenerationAwareBeanFactory;
 
 final class SpringContextCache {
 
   static final String REUSE_CONTEXT_PROP = "celements.test.reuseContext";
 
-  private static final ReentrantLock TEST_METHOD_LOCK = new ReentrantLock();
+  private final ReentrantLock lock = new ReentrantLock();
+  private final boolean reuse;
 
-  private static ConfigurableApplicationContext ctx;
+  private ConfigurableApplicationContext ctx;
 
-  static {
-    var thread = new Thread(SpringContextCache::close, "celements-test-spring-context-close");
+  SpringContextCache() {
+    reuse = Boolean.parseBoolean(System.getProperty(REUSE_CONTEXT_PROP, Boolean.TRUE.toString()));
+    var thread = new Thread(this::evict, "celements-test-spring-context-close");
     Runtime.getRuntime().addShutdownHook(thread);
   }
 
-  private SpringContextCache() {}
-
-  static boolean isActive() {
-    return (ctx != null) && ctx.isActive();
-  }
-
-  static ContextLease acquire(ContextCreator contextCreator) throws Exception {
-    TEST_METHOD_LOCK.lock();
-    ConfigurableApplicationContext context = null;
+  Lease acquire(ThrowingSupplier<ConfigurableApplicationContext, Exception> creator)
+      throws Exception {
+    lock.lock();
     try {
-      if (!isCacheEnabled()) {
-        return new ContextLease(contextCreator.get(), null);
-      }
-      context = getOrCreateContext(contextCreator);
-      var bf = tryCast(context.getBeanFactory(), GenerationAwareBeanFactory.class).orElse(null);
-      if (bf != null) {
-        beginGeneration(context, bf);
-      }
-      return new ContextLease(context, bf);
+      boolean create = (ctx == null);
+      ctx = create ? requireNonNull(creator.get()) : ctx;
+      begin(create);
+      return new Lease(ctx);
     } catch (Exception | Error exc) {
-      evict(context);
-      TEST_METHOD_LOCK.unlock();
+      try {
+        evict();
+      } catch (Exception | Error evictExc) {
+        exc.addSuppressed(evictExc);
+      }
       throw exc;
     }
   }
 
-  private static boolean isCacheEnabled() {
-    return Boolean.parseBoolean(System.getProperty(REUSE_CONTEXT_PROP, Boolean.TRUE.toString()));
+  private Optional<GenerationAwareBeanFactory> getBeanFactory() {
+    return tryCast(ctx.getBeanFactory(), GenerationAwareBeanFactory.class);
   }
 
-  private static ConfigurableApplicationContext getOrCreateContext(ContextCreator contextCreator)
-      throws Exception {
-    if (!isActive()) {
-      close();
-    }
-    return (ctx != null) ? ctx : contextCreator.get();
+  private void begin(boolean created) {
+    getBeanFactory().filter(bf -> reuse).ifPresent(bf -> {
+      if (created) {
+        bf.sealBaseline();
+      }
+      bf.beginGeneration();
+    });
   }
 
-  private static GenerationAwareBeanFactory beginGeneration(
-      ConfigurableApplicationContext context, GenerationAwareBeanFactory beanFactory) {
-    if (ctx == null) {
-      beanFactory.sealBaseline();
-      ctx = context;
-    }
-    beanFactory.beginGeneration();
-    return beanFactory;
-  }
-
-  private static synchronized void close() {
+  private void end() {
+    boolean reusable = false;
     try {
-      if (isActive()) {
+      reusable = reuse && getBeanFactory()
+          .map(GenerationAwareBeanFactory::endGeneration)
+          .orElse(false);
+    } finally {
+      if (!reusable) {
+        evict();
+      } else {
+        lock.unlock();
+      }
+    }
+  }
+
+  private void evict() {
+    try {
+      if (ctx != null) {
         ctx.close();
       }
     } finally {
       ctx = null;
+      if (lock.isHeldByCurrentThread()) {
+        lock.unlock();
+      }
     }
   }
 
-  private static void evict(ConfigurableApplicationContext context) {
-    if (ctx == context) {
-      close();
-    }
-  }
+  final class Lease implements AutoCloseable {
 
-  interface ContextCreator extends ThrowingSupplier<ConfigurableApplicationContext, Exception> {}
+    private final ConfigurableApplicationContext context;
 
-  record ContextLease(
-      ConfigurableApplicationContext context,
-      GenerationAwareBeanFactory beanFactory) {
-
-    void close() {
-      try {
-        if (beanFactory != null) {
-          endGeneration(context);
-        } else if (context.isActive()) {
-          context.close();
-        }
-      } finally {
-        TEST_METHOD_LOCK.unlock();
-      }
+    private Lease(ConfigurableApplicationContext context) {
+      this.context = requireNonNull(context);
     }
 
-    private void endGeneration(ConfigurableApplicationContext context) {
-      boolean keep = false;
-      try {
-        if (context.isActive()) {
-          keep = beanFactory.endGeneration();
-        }
-      } finally {
-        if (!keep) {
-          evict(context);
-        }
-      }
+    ConfigurableApplicationContext context() {
+      return context;
+    }
+
+    @Override
+    public void close() {
+      end();
     }
   }
 }

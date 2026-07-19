@@ -40,6 +40,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.xwiki.component.manager.ComponentRepositoryException;
@@ -53,6 +54,7 @@ import org.xwiki.context.ExecutionContextManager;
 import org.xwiki.model.reference.WikiReference;
 import org.xwiki.test.MockConfigurationSource;
 
+import com.celements.common.test.generation.GenerationAwareBeanFactory;
 import com.celements.servlet.CelSpringWebContext;
 import com.google.common.collect.ImmutableList;
 import com.xpn.xwiki.XWiki;
@@ -86,8 +88,8 @@ public abstract class AbstractComponentTest extends AbstractBaseComponentTest {
   }
 
   @Override
-  protected void beforeSpringContextRefresh() {
-    getSpringContext().setServletContext(new MockServletContext());
+  protected void beforeSpringContextRefresh(ConfigurableApplicationContext context) {
+    ((ConfigurableWebApplicationContext) context).setServletContext(new MockServletContext());
   }
 
   @Before
