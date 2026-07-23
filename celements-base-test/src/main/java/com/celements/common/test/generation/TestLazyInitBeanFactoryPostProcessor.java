@@ -1,4 +1,4 @@
-package com.celements.common.test;
+package com.celements.common.test.generation;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -26,9 +26,8 @@ public final class TestLazyInitBeanFactoryPostProcessor
       throws BeansException {
     for (String beanName : beanFactory.getBeanDefinitionNames()) {
       BeanDefinition beanDef = beanFactory.getBeanDefinition(beanName);
-      if ((beanDef instanceof AbstractBeanDefinition)
-          && (((AbstractBeanDefinition) beanDef).getLazyInit() == null)) {
-        beanDef.setLazyInit(true);
+      if ((beanDef instanceof AbstractBeanDefinition bd) && (bd.getLazyInit() == null)) {
+        bd.setLazyInit(true);
       }
     }
   }

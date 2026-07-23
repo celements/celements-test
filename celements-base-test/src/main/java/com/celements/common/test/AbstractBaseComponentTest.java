@@ -2,62 +2,85 @@ package com.celements.common.test;
 
 import static com.google.common.base.Preconditions.*;
 
+import java.util.List;
+
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.FullyQualifiedAnnotationBeanNameGenerator;
 import org.xwiki.component.descriptor.ComponentRole;
 import org.xwiki.component.descriptor.DefaultComponentDescriptor;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.component.manager.ComponentRepositoryException;
 
+import com.celements.common.test.generation.GenerationAwareBeanFactory;
 import com.celements.spring.context.CelSpringContext;
 
 /**
  * Prepares the Spring testing environment.
+ * <p>
+ * Spring contexts are cached across test classes within one test JVM. All participating
+ * subclasses must use the same {@link #createSpringContext()} and
+ * {@link #beforeSpringContextRefresh(ConfigurableApplicationContext)} setup family; mixing setup
+ * families is unsupported.
  */
 public abstract class AbstractBaseComponentTest {
 
-  private ConfigurableApplicationContext context;
+  private static final SpringContextCache CACHE = new SpringContextCache();
+
+  private SpringContextCache.Lease lease;
 
   @Before
   public final void setUpSpring() throws Exception {
-    checkState(context == null);
-    context = createSpringContext();
+    checkState(lease == null);
+    lease = CACHE.acquire(this::initializeSpringContext);
+  }
+
+  private ConfigurableApplicationContext initializeSpringContext() throws Exception {
+    var context = createSpringContext();
     context.getEnvironment().setActiveProfiles("test");
-    beforeSpringContextRefresh();
+    beforeSpringContextRefresh(context);
     context.refresh();
+    return context;
   }
 
   /**
    * Entry point for initialising a different spring context.
    */
   protected ConfigurableApplicationContext createSpringContext() throws Exception {
-    return new CelSpringContext();
+    return new CelSpringContext(
+        new GenerationAwareBeanFactory(),
+        new FullyQualifiedAnnotationBeanNameGenerator(),
+        List.of());
   }
 
   /**
    * Entry point for handling logic pre context refresh.
    */
-  protected void beforeSpringContextRefresh() throws Exception {}
+  protected void beforeSpringContextRefresh(ConfigurableApplicationContext context)
+      throws Exception {}
 
   @After
   public final void tearDownSpring() throws Exception {
-    resetDefault(); // let's reset the mocks here to avoid memory leaks into the ClassLoader
-    getDefaultMocks().clear();
-    getSpringContext().close();
-    context = null;
+    if (lease == null) {
+      return;
+    }
+    try (var closeable = lease) {
+      resetDefault();
+      getDefaultMocks().clear();
+    } finally {
+      lease = null;
+    }
   }
 
   public ConfigurableApplicationContext getSpringContext() {
-    checkState(context != null);
-    return context;
+    return checkNotNull(lease).context();
   }
 
   public ConfigurableListableBeanFactory getBeanFactory() {
-    checkState(context != null);
-    return context.getBeanFactory();
+    return getSpringContext().getBeanFactory();
   }
 
   public ComponentManager getComponentManager() {
@@ -118,4 +141,5 @@ public abstract class AbstractBaseComponentTest {
     getDefaultMocks().stream().forEach(EasyMock::reset);
     EasyMock.reset(mocks);
   }
+
 }

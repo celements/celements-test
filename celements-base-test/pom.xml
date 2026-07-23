@@ -60,12 +60,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>one.util</groupId>
-      <artifactId>streamex</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
