@@ -20,6 +20,11 @@ import com.celements.spring.context.CelSpringContext;
 
 /**
  * Prepares the Spring testing environment.
+ * <p>
+ * Spring contexts are cached across test classes within one test JVM. All participating
+ * subclasses must use the same {@link #createSpringContext()} and
+ * {@link #beforeSpringContextRefresh(ConfigurableApplicationContext)} setup family; mixing setup
+ * families is unsupported.
  */
 public abstract class AbstractBaseComponentTest {
 
